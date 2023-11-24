@@ -8,7 +8,7 @@
 
    - **collection:** A set of protein objects.
 
-   - **database:*** Unifying database mirror that allows query access to create a collection.
+   - **database:** Unifying database mirror that allows query access to create a collection.
 
 - **frontend:** High level specifications for datasets and tasks.
 
