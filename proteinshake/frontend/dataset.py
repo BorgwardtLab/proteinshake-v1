@@ -4,39 +4,47 @@ class Dataset:
         path: Path,
         version: str = "latest",
         shard_size: int = None,
-        batch_size: int = None,
         shuffle: bool = False,
         random_seed: int = 42,
     ) -> None:
         """
-        Takes a compressed collection and applies transforms.
         `path` is either pointing to a Zenodo repository or a directory in the local filesystem.
         """
         pass
 
-    def to_graph(
-        self,
-        pre_transform: PreRepresentationTransform = None,
-        post_transform: PostRepresentationTransform = None,
-        **kwargs
-    ) -> Dataset:
+    def load(self):
         """
-        Applies pre/representation/post transforms to all proteins in the dataset.
+        Loads meta data.
+        Returns a generator that reads and decompresses the raw files.
         """
-        self.proteins.apply(pre_transform)
-        self.proteins.apply(GraphTransform(**kwargs))
-        self.proteins.apply(post_transform)
-        return self
+        pass
 
-    def pyg(
-        self,
-        pre_transform: PreFrameworkTransform = None,
-        post_transform: PostFrameworkTransform = None,
-        **kwargs
-    ) -> Generic:
+    def save(self):
         """
-        Creates an iterable that wraps around __next__ or __getitem__ and applies pre/framework/post transforms.
-        Returns a framework-specific dataset instance (iterable-style if sharded, map-style if in-memory or on-disk).
+        Applies the representation transforms and writes them to shards.
+        """
+        pass
+
+    def apply(
+        self,
+        pre_representation_transform: PreRepresentationTransform = None,
+        representation_transform: RepresentationTransform = None,
+        post_representation_transform: PostRepresentationTransform = None,
+        pre_framework_transform: PreFrameworkTransform = None,
+        framework_transform: FrameworkTransform = None,
+        post_framework_transform: PostFrameworkTransform = None,
+    ) -> None:
+        pass
+
+    def partition(self, index):
+        """
+        Partitions the data according to `indices`. This will be used to retrieve subsets of the data and also to optimize sharding.
+        """
+        pass
+
+    def __getitem__(self):
+        """
+        Intercepts representation and framework calls to forward them to `.apply()`.
         """
         pass
 
@@ -44,11 +52,6 @@ class Dataset:
         """
         Yields the next protein from a shard. When the shard is finished, loads the next one.
         If `shuffle` is True, loads a random shard and applies shuffling within the shard.
-        """
-        pass
-
-    def __getitem__(self, index: Union[int, list, tuple, ndarray]) -> None:
-        """
-        Returns the indexed proteins. Not available with sharding for performance reasons.
+        Applies pre/framework/post transforms.
         """
         pass
