@@ -1,7 +1,13 @@
+import numpy as np
+import random
+from typing import Generic
+from proteinshake.util import amino_acid_alphabet
+
+
 class Dataset:
     def __init__(
         self,
-        path: Path,
+        path: str = "",
         version: str = "latest",
         shard_size: int = None,
         shuffle: bool = False,
@@ -10,48 +16,70 @@ class Dataset:
         """
         `path` is either pointing to a Zenodo repository or a directory in the local filesystem.
         """
-        pass
+        self.dummy_proteins = np.array(
+            [
+                {
+                    "ID": f"protein_{i}",
+                    "coords": np.random.rand(3, 300),
+                    "sequence": "".join(
+                        random.choice(amino_acid_alphabet) for _ in range(300)
+                    ),
+                    "label": np.random.random(),
+                    "split": random.choice(["train", "test", "val"]),
+                }
+                for i in range(100)
+            ]
+        )
 
-    def load(self):
-        """
-        Loads meta data.
-        Returns a generator that reads and decompresses the raw files.
-        """
-        pass
+    @property
+    def proteins(self):
+        return iter(self.dummy_proteins)
 
-    def save(self):
-        """
-        Applies the representation transforms and writes them to shards.
-        """
-        pass
+    def apply(self, *transforms) -> Generic:
+        def transform(p):
+            for t in transforms:
+                p = t(p)
+            return p
 
-    def apply(
-        self,
-        pre_representation_transform: PreRepresentationTransform = None,
-        representation_transform: RepresentationTransform = None,
-        post_representation_transform: PostRepresentationTransform = None,
-        pre_framework_transform: PreFrameworkTransform = None,
-        framework_transform: FrameworkTransform = None,
-        post_framework_transform: PostFrameworkTransform = None,
-    ) -> None:
-        pass
+        return (transform(p) for p in self.proteins)
 
-    def partition(self, index):
+    def partition(self, index: dict[np.ndarray]):
         """
         Partitions the data according to `indices`. This will be used to retrieve subsets of the data and also to optimize sharding.
         """
-        pass
+        self.partition = index
 
-    def __getitem__(self):
+    def split(self, name):
         """
-        Intercepts representation and framework calls to forward them to `.apply()`.
+        Returns a new dataset with a subset of the proteins, determined by the partition.
         """
-        pass
+        dataset = Dataset()
+        dataset.dummy_proteins = self.dummy_proteins[self.partition[name]]
+        return dataset
 
-    def __next__(self) -> None:
+    def create_dataloader(self, X, y):
+        """
+        Only temporarily a dataset class method. Will most likely be put in a dedicated `Framework` class.
+        Returns a dataloader of the correct framework. For now only torch.
+        """
+        import torch
+        from torch.utils.data import DataLoader, IterableDataset
+
+        class _Dataset(IterableDataset):
+            def __iter__(self):
+                yield next(X), next(y)
+
+        return lambda **kwargs: DataLoader(_Dataset(), **kwargs)
+
+    def __next__(self) -> Generic:
         """
         Yields the next protein from a shard. When the shard is finished, loads the next one.
         If `shuffle` is True, loads a random shard and applies shuffling within the shard.
         Applies pre/framework/post transforms.
         """
-        pass
+        try:
+            protein = next(self.current_shard)
+        except StopIteration:
+            self.current_shard = self.proteins
+            protein = next(self.current_shard)
+        return protein
