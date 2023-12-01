@@ -1,6 +1,6 @@
-from .representation import RepresentationTransform
+from ..transform import RepresentationTransform
 
 
 class PointRepresentationTransform(RepresentationTransform):
-    def __call__(self, protein):
+    def transform(self, protein):
         return protein["coords"]

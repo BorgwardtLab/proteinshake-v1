@@ -1,19 +1,38 @@
 class Transform:
+    def fit(self, x):
+        pass
+
+    def transform(self, x):
+        return x
+
+    def __call__(self, *args, **kwargs):
+        return self.transform(*args, **kwargs)
+
+
+class RepresentationTransform(Transform):
     pass
 
 
-class DataTransform:
-    def __init__(self, representation_transform, framework_transform):
+class FrameworkTransform(Transform):
+    pass
+
+
+class DataTransform(Transform):
+    def __init__(
+        self,
+        representation_transform=RepresentationTransform(),
+        framework_transform=FrameworkTransform(),
+    ):
         self.representation_transform = representation_transform
         self.framework_transform = framework_transform
 
-    def __call__(self, x):
+    def transform(self, x):
         return self.framework_transform(self.representation_transform(x))
 
 
-class TargetTransform:
+class TargetTransform(Transform):
     pass
 
 
-class LabelTransform:
+class LabelTransform(Transform):
     pass

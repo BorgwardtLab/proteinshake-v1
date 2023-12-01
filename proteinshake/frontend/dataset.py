@@ -24,7 +24,7 @@ class Dataset:
                     "sequence": "".join(
                         random.choice(amino_acid_alphabet) for _ in range(300)
                     ),
-                    "label": np.random.random(),
+                    "label": np.random.random() * 100,
                     "split": random.choice(["train", "test", "val"]),
                 }
                 for i in range(100)

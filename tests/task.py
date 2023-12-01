@@ -7,9 +7,9 @@ from proteinshake.frontend.transforms import *
 
 class TestTask(unittest.TestCase):
     def test_task(self):
-        # CREATOR
+        # CONTRIBUTOR
         class MyTargetTransform(TargetTransform):
-            def __call__(self, protein):
+            def transform(self, protein):
                 return protein["label"]
 
         class MyEvaluator:
@@ -34,16 +34,21 @@ class TestTask(unittest.TestCase):
                 )
 
         # END USER
-        y_transform = lambda label: label * 100
+        class MyLabelTransform(LabelTransform):
+            def fit(self, dataset):
+                labels = [p["label"] for p in dataset.split("train").proteins]
+                self.min, self.max = min(labels), max(labels)
+
+            def transform(self, x):
+                return (x - self.min) / (self.max - self.min)
+
+        y_transform = MyLabelTransform()
         X_transform = DataTransform(
             representation_transform=PointRepresentationTransform(),
             framework_transform=TorchFrameworkTransform(),
         )
 
-        task = MyTask(
-            X_transform=X_transform,
-            y_transform=y_transform,
-        )
+        task = MyTask(X_transform=X_transform, y_transform=y_transform)
 
         print(task.train_index)
         print(next(task.X_train).shape)

@@ -19,6 +19,9 @@ class Task:
         self.index = splitter(dataset)
         # partition the dataset. the dataset will optimize data loading.
         dataset.partition(self.index)
+        # fit the transforms
+        X_transform.fit(dataset)
+        y_transform.fit(dataset)
         # create X,y,dataloader for each item in the split.
         for name, index in self.index.items():
             # get the partition of the split, apply transforms, and save to disk.

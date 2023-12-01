@@ -1,7 +1,7 @@
 import torch
-from .framework import FrameworkTransform
+from ..transform import FrameworkTransform
 
 
 class TorchFrameworkTransform(FrameworkTransform):
-    def __call__(self, representation):
+    def transform(self, representation):
         return torch.tensor(representation)
