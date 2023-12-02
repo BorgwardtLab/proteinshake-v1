@@ -36,3 +36,18 @@ class TargetTransform(Transform):
 
 class LabelTransform(Transform):
     pass
+
+class Compose(Transform):
+    def __init__(self, *transforms):
+        # split transforms at the first non-deterministic
+        pass
+    
+    def transform_deterministic(self, proteins, labels):
+        pass
+    
+    def transform_nondeterministic(self, proteins, labels):
+        pass
+    
+    def fit(self, dataset):
+        # fit each transform
+        pass

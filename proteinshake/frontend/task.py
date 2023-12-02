@@ -2,7 +2,7 @@ from proteinshake.frontend.dataset import Dataset
 from proteinshake.frontend.splitters import Splitter
 from proteinshake.frontend.targets import Target
 from proteinshake.frontend.evaluators import Evaluator
-from proteinshake.frontend.transforms import TargetTransform, DataTransform
+from proteinshake.frontend.transforms import Transform
 
 
 class Task:
@@ -12,22 +12,18 @@ class Task:
         splitter: Splitter,
         target: Target,
         evaluator: Evaluator,
-        X_transform: DataTransform,
-        y_transform: TargetTransform,
+        transform: Transform,
     ) -> None:
         # compute splits. `splitter` returns a dictionary of name:index pairs.
         self.index = splitter(dataset)
         # partition the dataset. the dataset will optimize data loading.
         dataset.partition(self.index)
         # fit the transforms
-        X_transform.fit(dataset)
-        y_transform.fit(dataset)
+        transform.fit(dataset)
         # create X,y,dataloader for each item in the split.
         for name, index in self.index.items():
             # get the partition of the split, apply transforms, and save to disk.
-            X = dataset.split(name).apply(X_transform)
-            # apply the target transform
-            y = dataset.split(name).apply(target, y_transform)
+            X,y = dataset.split(name).apply(target, transform)
             # create a dataloader for the framework
             loader = dataset.create_dataloader(X, y)
             # add attributes to the task object

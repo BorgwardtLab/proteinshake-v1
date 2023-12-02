@@ -41,14 +41,18 @@ class TestTask(unittest.TestCase):
 
             def transform(self, x):
                 return (x - self.min) / (self.max - self.min)
+            
+            def inverse_transform(self, x):
+                return x * (self.max - self.min) + self.min
 
-        y_transform = MyLabelTransform()
-        X_transform = DataTransform(
-            representation_transform=PointRepresentationTransform(),
-            framework_transform=TorchFrameworkTransform(),
+        task = MyTask().transform(
+            MinMaxScaler(),
+            MyLabelTransform(),
+            ResidueMasking(),
+            Graph(),
+            AddNodeDegree(),
+            PyG(),
         )
-
-        task = MyTask(X_transform=X_transform, y_transform=y_transform)
 
         print(task.train_index)
         print(next(task.X_train).shape)
@@ -56,6 +60,10 @@ class TestTask(unittest.TestCase):
             print("X", X.shape)
             print("y", y)
             break
+        
+        y_pred = model.predict_step(task.X_test)
+        metrics = task.evaluate(task.y_test, y_pred) # evaluate will apply any existing inverse_transforms
+        print(metrics)
 
 
 if __name__ == "__main__":

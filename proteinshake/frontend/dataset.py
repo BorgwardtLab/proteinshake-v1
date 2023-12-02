@@ -36,12 +36,9 @@ class Dataset:
         return iter(self.dummy_proteins)
 
     def apply(self, *transforms) -> Generic:
-        def transform(p):
-            for t in transforms:
-                p = t(p)
-            return p
-
-        return (transform(p) for p in self.proteins)
+        transforms = Compose(transforms)
+        save(transforms.transform_deterministic(self.proteins), self.root, shard_size=self.shard_size)
+        self.transforms = transforms.transform_nondeterministic
 
     def partition(self, index: dict[np.ndarray]):
         """
@@ -62,7 +59,6 @@ class Dataset:
         Only temporarily a dataset class method. Will most likely be put in a dedicated `Framework` class.
         Returns a dataloader of the correct framework. For now only torch.
         """
-        import torch
         from torch.utils.data import DataLoader, IterableDataset
 
         class _Dataset(IterableDataset):
@@ -82,4 +78,4 @@ class Dataset:
         except StopIteration:
             self.current_shard = self.proteins
             protein = next(self.current_shard)
-        return protein
+        return self.transform(protein)
