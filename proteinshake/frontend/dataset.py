@@ -1,14 +1,15 @@
 import numpy as np
 import random
 from typing import Generic
-from proteinshake.util import amino_acid_alphabet
+from proteinshake.util import amino_acid_alphabet, save
+from proteinshake.transforms import Compose
+from functools import partial
 
 
 class Dataset:
     def __init__(
         self,
         path: str = "",
-        version: str = "latest",
         shard_size: int = None,
         shuffle: bool = False,
         random_seed: int = 42,
@@ -35,10 +36,48 @@ class Dataset:
     def proteins(self):
         return iter(self.dummy_proteins)
 
-    def apply(self, *transforms) -> Generic:
-        transforms = Compose(transforms)
-        save(transforms.transform_deterministic(self.proteins), self.root, shard_size=self.shard_size)
-        self.transforms = transforms.transform_nondeterministic
+    def split(self, splitter):
+        # fitting?
+        # computes splits and saves them as a dict of indices
+        # rearranges protein shards for optimal data loading
+        # creates ?_loader properties
+        # one rng per loader
+        splitter.fit(self)
+        for name, index in splitter.assign(self):
+            save(partition, shard_size=self.shard_size)
+            setattr(self, f"{name}_index", index)
+            setattr(self, f"{name}_loader", partial(self.loader, name))
+
+    def apply(self, *transforms) -> None:
+        # prepares transforms
+        self.transform = Compose(transforms)
+        self.transform.fit()
+        for partition in self.partitions:
+            save(
+                self.transform.deterministic_transform(partition),
+                self.root,
+                shard_size=self.shard_size,
+            )
+
+    def loader(self, split=None, batch_size=None):
+        # check if batch_size multiple of shard_size
+        # creates generator to load data from disk (optionally shuffled) and to apply stochastic transforms
+        # creates framework dataloader from self.transform.create_dataloader
+        # uses the index returned from transforms to reshape the data into tuples
+        def __iter__():
+            # create shard order from rng
+            def generator():
+                try:
+                    protein = next(self.current_shard)
+                except StopIteration:
+                    # create item order from rng
+                    self.current_shard = self.proteins
+                    protein = next(self.current_shard)
+                return self.transform.stochastic_transform(protein)  # reshape here
+
+            return generator
+
+        return self.transform.create_dataloader(__iter__, batch_size=batch_size)
 
     def partition(self, index: dict[np.ndarray]):
         """

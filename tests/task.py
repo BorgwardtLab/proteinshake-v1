@@ -1,69 +1,66 @@
 import unittest
 import numpy as np
-from proteinshake.frontend.dataset import Dataset
+import itertools
+from proteinshake.frontend.evaluators import Metrics
+from proteinshake.frontend.targets import Target
+from proteinshake.frontend.splitters import Split
 from proteinshake.frontend.task import Task
 from proteinshake.frontend.transforms import *
+from proteinshake.frontend.transforms import Transform, LabelTransform
 
 
 class TestTask(unittest.TestCase):
     def test_task(self):
         # CONTRIBUTOR
-        class MyTargetTransform(TargetTransform):
-            def transform(self, protein):
-                return protein["label"]
+        class MyTarget(Target):
+            def __call__(self, dataset):
+                return (((p,), p["label"]) for p in dataset)
 
-        class MyEvaluator:
+        class MyMetrics(Metrics):
             def __call__(self, y_true, y_pred):
                 return {"Accuracy": np.random.random()}
 
-        class MySplitter:
-            def __call__(self, dataset):
-                index = {"train": [], "test": [], "val": []}
-                for i, p in enumerate(dataset.proteins):
-                    index[p["split"]].append(i)
-                return index
+        class MySplit(Split):
+            def __call__(self, Xy):
+                # this implementation looks a bit inefficient
+                train, testval = itertools.tee(Xy)
+                test, val = itertools.tee(testval)
+                return {
+                    "train": filter(lambda Xy: Xy[0][0]["split"] == "train", train),
+                    "test": filter(lambda Xy: Xy[0][0]["split"] == "test", test),
+                    "val": filter(lambda Xy: Xy[0][0]["split"] == "val", val),
+                }
+
+        class MyAugmentation(Transform):
+            def transform(self, X):
+                return X
 
         class MyTask(Task):
-            def __init__(self, **kwargs):
-                super().__init__(
-                    dataset=Dataset(),
-                    splitter=MySplitter(),
-                    target=MyTargetTransform(),
-                    evaluator=MyEvaluator(),
-                    **kwargs
-                )
+            dataset = "test"
+            split = MySplit
+            target = MyTarget
+            metrics = MyMetrics
+            augmentation = MyAugmentation
 
         # END USER
         class MyLabelTransform(LabelTransform):
-            def fit(self, dataset):
-                labels = [p["label"] for p in dataset.split("train").proteins]
-                self.min, self.max = min(labels), max(labels)
+            def transform(self, y):
+                return -y
 
-            def transform(self, x):
-                return (x - self.min) / (self.max - self.min)
-            
-            def inverse_transform(self, x):
-                return x * (self.max - self.min) + self.min
+            def inverse_transform(self, y):
+                return -y
 
-        task = MyTask().transform(
-            MinMaxScaler(),
+        task = MyTask(shard_size=8).transform(
             MyLabelTransform(),
-            ResidueMasking(),
-            Graph(),
-            AddNodeDegree(),
-            PyG(),
+            PointRepresentationTransform(),
+            TorchFrameworkTransform(),
         )
 
-        print(task.train_index)
-        print(next(task.X_train).shape)
-        for X, y in task.train_dataloader(batch_size=32):
-            print("X", X.shape)
-            print("y", y)
-            break
-        
-        y_pred = model.predict_step(task.X_test)
-        metrics = task.evaluate(task.y_test, y_pred) # evaluate will apply any existing inverse_transforms
-        print(metrics)
+        for epoch in range(5):
+            for X, y in task.train_loader(batch_size=64, random_seed=0):
+                print("X", X.shape)
+                print("y", y.shape)
+                break
 
 
 if __name__ == "__main__":

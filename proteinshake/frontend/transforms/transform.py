@@ -1,53 +1,92 @@
-class Transform:
-    def fit(self, x):
+from typing import Tuple
+from proteinshake.util import error
+
+
+class BaseTransform:
+    stochastic = False
+
+    def __call__(self, Xy):
+        raise NotImplementedError
+
+    def fit(self, X):
         pass
 
-    def transform(self, x):
-        return x
-
-    def __call__(self, *args, **kwargs):
-        return self.transform(*args, **kwargs)
+    def transform(self, X):
+        raise NotImplementedError
 
 
-class RepresentationTransform(Transform):
-    pass
+class Transform(BaseTransform):
+    def __call__(self, Xy):
+        X, y = Xy
+        shape = X.shape
+        X = self.transform(X.flatten())
+        return X.reshape(*shape, *X.shape[1:]), y
+
+    def transform(self, X):
+        return X
 
 
-class FrameworkTransform(Transform):
-    pass
+class CoTransform(BaseTransform):
+    def __call__(self, Xy):
+        return self.transform(*Xy)
+
+    def transform(self, X, y):
+        return X, y
 
 
-class DataTransform(Transform):
-    def __init__(
-        self,
-        representation_transform=RepresentationTransform(),
-        framework_transform=FrameworkTransform(),
-    ):
-        self.representation_transform = representation_transform
-        self.framework_transform = framework_transform
+class TupleTransform(BaseTransform):
+    def __call__(self, Xy):
+        X, y = Xy
+        return self.transform(X), y
 
-    def transform(self, x):
-        return self.framework_transform(self.representation_transform(x))
+    def transform(self, X: Tuple):
+        return X
 
 
-class TargetTransform(Transform):
-    pass
+class LabelTransform(BaseTransform):
+    def __call__(self, Xy):
+        X, y = Xy
+        return X, self.transform(y)
+
+    def transform(self, y):
+        return y
+
+    def inverse_transform(self, y):
+        return y
 
 
-class LabelTransform(Transform):
-    pass
-
-class Compose(Transform):
+class Compose:
     def __init__(self, *transforms):
-        # split transforms at the first non-deterministic
-        pass
-    
-    def transform_deterministic(self, proteins, labels):
-        pass
-    
-    def transform_nondeterministic(self, proteins, labels):
-        pass
-    
+        self.transforms = transforms
+        self.deterministic_transforms = []
+        self.stochastic_transforms = []
+        stochastic_breakpoint = False
+        for transform in transforms:
+            if transform.stochastic:
+                stochastic_breakpoint = True
+            if stochastic_breakpoint:
+                self.stochastic_transforms.append(transform)
+            else:
+                self.deterministic_transforms.append(transform)
+            if hasattr(transform, "create_loader"):
+                if hasattr(self, "create_loader"):
+                    error("You cannot use more than one framework.")
+                setattr(self, "create_loader", transform.create_loader)
+
+    @property
+    def hash(self):
+        return self.__class__.__name__
+
     def fit(self, dataset):
-        # fit each transform
-        pass
+        for transform in self.transforms:
+            transform.fit(dataset)
+
+    def deterministic_transform(self, Xy):
+        for transform in self.deterministic_transforms:
+            Xy = transform(Xy)
+        return Xy
+
+    def stochastic_transform(self, Xy):
+        for transform in self.stochastic_transforms:
+            Xy = transform(Xy)
+        return Xy

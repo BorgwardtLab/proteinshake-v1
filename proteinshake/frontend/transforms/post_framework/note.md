@@ -9,3 +9,5 @@ Example:
     ds = EnzymeDataset(...).to_graph(...).pyg(..., post_transform=AddSelfLoops)
 
 """
+
+Note: maybe we provide a wrapper here to cast native framework transforms to shake transforms (to deal with shake-specific things like batching, deterministic/stochastic, etc)
