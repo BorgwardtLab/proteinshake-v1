@@ -3,6 +3,10 @@ from proteinshake.util import error
 
 
 class BaseTransform:
+    """
+    Abstract class for transforms. A transform can be stochastic or deterministic, which decides whether the transformed result can be precomputed and saved to disk (deterministic), or if it needs to be computed when retrieving a data item (stochastic). Transforms generally take a batch of Xy tuples, some subclasses exist that facilitate reshaping (see below). Transforms can be fit beforehand (on the 'train' partition).
+    """
+
     stochastic = False
 
     def __call__(self, Xy):
@@ -55,7 +59,16 @@ class LabelTransform(BaseTransform):
         return y
 
 
+class IdentityTransform(BaseTransform):
+    def __call__(self, Xy):
+        return Xy
+
+
 class Compose:
+    """
+    Composes multiple transforms into one object. Takes care of splitting the deterministic and stochastic part, as well as storing the framework create_dataloader method.
+    """
+
     def __init__(self, *transforms):
         self.transforms = transforms
         self.deterministic_transforms = []

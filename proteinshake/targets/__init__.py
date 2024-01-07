@@ -1,1 +1,1 @@
-from .target import Target
+from .attribute_target import AttributeTarget

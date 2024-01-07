@@ -6,7 +6,7 @@ from functools import partial
 from proteinshake.split import Split
 from proteinshake.target import Target
 from proteinshake.metric import Metric
-from proteinshake.transform import Transform, Compose
+from proteinshake.transform import Transform, Compose, IdentityTransform
 from proteinshake.util import amino_acid_alphabet, sharded, save_shards, load, warn
 
 
@@ -15,7 +15,7 @@ class Task:
     split: Split = None
     target: Target = None
     metrics: Metric = None
-    augmentation: Transform = None
+    augmentation: Transform = IdentityTransform
 
     def __init__(
         self,
@@ -46,6 +46,7 @@ class Task:
     @property
     def proteins(self):
         # return dataset iterator
+        # this is a dummy for now. It will load a dataset from file in the future.
         rng = np.random.default_rng(42)
         return (
             {
@@ -62,7 +63,7 @@ class Task:
 
     def transform(self, *transforms) -> None:
         Xy = self.target(self.proteins)
-        partitions = self.split(Xy)  # returns dict of generators[(X,...),y]
+        partitions = self.split(Xy)
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
         self.transform.fit(partitions["train"])
@@ -73,7 +74,7 @@ class Task:
             )
             save_shards(
                 data_transformed,
-                self.root / self.split.hash / self.transform.hash / "shards",
+                self.root / self.split.hash / name / self.transform.hash / "shards",
             )
             setattr(self, f"{name}_loader", partial(self.loader, split=name))
         return self
@@ -87,7 +88,7 @@ class Task:
         **kwargs,
     ):
         rng = np.random.default_rng(random_seed)
-        path = self.root / self.split.hash / self.transform.hash / "shards"
+        path = self.root / self.split.hash / split / self.transform.hash / "shards"
         shard_index = load(path / "index.npy")
         if self.shard_size % batch_size != 0 and batch_size % self.shard_size != 0:
             warn(

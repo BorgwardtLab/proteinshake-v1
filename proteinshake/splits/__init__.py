@@ -1,1 +1,1 @@
-from .splitter import *
+from .dummy_split import *
