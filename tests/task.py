@@ -1,12 +1,12 @@
 import unittest
 import numpy as np
 import itertools
-from proteinshake.frontend.evaluators import Metrics
-from proteinshake.frontend.targets import Target
-from proteinshake.frontend.splitters import Split
-from proteinshake.frontend.task import Task
-from proteinshake.frontend.transforms import *
-from proteinshake.frontend.transforms import Transform, LabelTransform
+from proteinshake.metric import Metric
+from proteinshake.target import Target
+from proteinshake.split import Split
+from proteinshake.task import Task
+from proteinshake.transform import *
+from proteinshake.transforms import *
 
 
 class TestTask(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestTask(unittest.TestCase):
             def __call__(self, dataset):
                 return (((p,), p["label"]) for p in dataset)
 
-        class MyMetrics(Metrics):
+        class MyMetric(Metric):
             def __call__(self, y_true, y_pred):
                 return {"Accuracy": np.random.random()}
 
@@ -39,7 +39,7 @@ class TestTask(unittest.TestCase):
             dataset = "test"
             split = MySplit
             target = MyTarget
-            metrics = MyMetrics
+            metrics = MyMetric
             augmentation = MyAugmentation
 
         # END USER

@@ -1,5 +1,5 @@
-from ..transform import Transform
-from proteinshake.frontend.representation import Representation
+from proteinshake.transform import Transform
+from proteinshake.representation import Representation
 import numpy as np
 
 

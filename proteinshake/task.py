@@ -3,10 +3,10 @@ import numpy as np
 import os
 from pathlib import Path
 from functools import partial
-from proteinshake.frontend.splitters import Split
-from proteinshake.frontend.targets import Target
-from proteinshake.frontend.evaluators import Metrics
-from proteinshake.frontend.transforms import Transform, Compose
+from proteinshake.split import Split
+from proteinshake.target import Target
+from proteinshake.metric import Metric
+from proteinshake.transform import Transform, Compose
 from proteinshake.util import amino_acid_alphabet, sharded, save_shards, load, warn
 
 
@@ -14,7 +14,7 @@ class Task:
     dataset: str = ""
     split: Split = None
     target: Target = None
-    metrics: Metrics = None
+    metrics: Metric = None
     augmentation: Transform = None
 
     def __init__(
@@ -31,7 +31,7 @@ class Task:
             if not os.environ.get("PROTEINSHAKE_ROOT", None) is None:
                 root = os.environ["PROTEINSHAKE_ROOT"]
             else:
-                root = "~/.proteinshake"
+                root = Path.home() / ".proteinshake"
         root = Path(root) / self.__class__.__name__
         os.makedirs(root, exist_ok=True)
         self.root = root

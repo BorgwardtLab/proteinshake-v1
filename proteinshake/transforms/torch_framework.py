@@ -1,8 +1,8 @@
 import torch
 import numpy as np
 from torch.utils.data import DataLoader, IterableDataset
-from ..transform import Transform
-from proteinshake.frontend.framework import Framework
+from proteinshake.transform import Transform
+from proteinshake.framework import Framework
 
 
 class TorchFrameworkTransform(Framework, Transform):
