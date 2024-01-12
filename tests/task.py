@@ -24,6 +24,9 @@ class TestTask(unittest.TestCase):
                 print("X", X.shape)
                 print("y", y.shape)
                 break
+        print("EVALUATION")
+        metrics = task.evaluate(np.ones((10,)) * 3, np.ones((10,)) * 5)
+        print(metrics)
 
 
 if __name__ == "__main__":

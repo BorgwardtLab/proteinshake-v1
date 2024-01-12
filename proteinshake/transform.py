@@ -103,3 +103,9 @@ class Compose:
         for transform in self.stochastic_transforms:
             Xy = transform(Xy)
         return Xy
+
+    def inverse_transform(self, y):
+        for transform in self.transforms:
+            if hasattr(transform, "inverse_transform"):
+                y = transform.inverse_transform(y)
+        return y
