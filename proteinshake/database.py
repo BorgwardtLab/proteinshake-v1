@@ -91,9 +91,8 @@ class Residues:
     
 class Collection:
     """
-    A set of Proteins as a result of a Database query. Provides methods to store and load to the filesystem.
+    A set of Proteins as a result of a Database query. Provides methods to store to the filesystem.
     Stores files as tar bundles with sharded structures, a protein-level info file, metadata, and assets.
-    Loads files as an iterator with associated metadata and assets.
     """
     
     def __init__(self) -> None:
@@ -119,7 +118,8 @@ class CollectionTransform:
 class Dataset:
     """
     Abstract class to define a Database query and a file path. Used to create and load a dataset.
-    Provides the means to download a precomputed Collection from a server or filesystem.
+    Provides the means to (down-)load a precomputed Collection from a server or filesystem.
+    Provides a ProteinIterator for the Task.
     """
     
     def __init__(self) -> None:
