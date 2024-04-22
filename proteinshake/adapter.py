@@ -1,6 +1,10 @@
 class Adapter:
     """
-    Downloads raw pdb files and/or meta data from a source and formats it to the shake database schema.
+    Provides an API to an online database.
     """
 
-    pass
+    def __init__(self) -> None:
+        pass
+
+    def sync(self):
+        pass

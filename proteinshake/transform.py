@@ -1,5 +1,5 @@
 from typing import Tuple
-from proteinshake.util import error
+from proteinshake.utilities import error
 
 
 class BaseTransform:
