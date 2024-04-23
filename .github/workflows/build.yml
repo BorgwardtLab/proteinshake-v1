@@ -37,12 +37,8 @@ jobs:
           coverage run --source proteinshake -m pytest
           coverage report -m
           coverage xml
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v2
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          flags: pytest
-          name: proteinshake
-          fail_ci_if_error: true
-          verbose: true 
+          slug: BorgwardtLab/proteinshake-v1
