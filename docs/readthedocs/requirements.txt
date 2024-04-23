@@ -1,4 +1,4 @@
-git+https://github.com/BorgwardtLab/proteinshake.git
+git+https://github.com/BorgwardtLab/proteinshake-v1.git
 myst-nb
 torch
 torch_geometric
