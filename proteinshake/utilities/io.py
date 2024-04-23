@@ -84,7 +84,6 @@ def self_assign(func):
             setattr(self, name, value)
         if hasattr(func, "__self__"):
             func(self, *args, **kwargs)
-        return self
 
     return wrapper_init
 

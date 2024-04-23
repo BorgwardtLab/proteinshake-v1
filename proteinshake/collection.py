@@ -31,7 +31,7 @@ class Collection:
             avro_writer(
                 file,
                 None,
-                proteins,
+                (protein.to_dict() for protein in proteins),
                 metadata={
                     "number_of_proteins": str(len(self.proteins) + len(proteins))
                 },
@@ -47,13 +47,14 @@ class Collection:
         proteins = self.proteins
         for transform in transforms:
             proteins = transform(proteins)
-        with open(self.path / "proteins.avro", "wb") as file:
+        with open(self.path / "proteins_transformed.avro", "wb") as file:
             avro_writer(
                 file,
                 Protein.avro_schema(),
                 proteins,
                 metadata={"number_of_proteins": str(len(proteins))},
             )
+        os.rename(self.path / "proteins_transformed.avro", self.path / "proteins.avro")
 
     @property
     def proteins(self):

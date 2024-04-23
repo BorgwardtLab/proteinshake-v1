@@ -1,9 +1,19 @@
 from pathlib import Path
 from typing import Union, List
+import redis
+
+from redis.commands.json.path import Path as RedisPath
+
+import redis.commands.search.aggregation as aggregations
+import redis.commands.search.reducers as reducers
+from redis.commands.search.field import TextField, NumericField, TagField
+from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+from redis.commands.search.query import NumericFilter, Query
 
 from .collection import Collection
 from .asset_storage import AssetStorage
 from .structure_storage import StructureStorage
+from .adapter import Adapter
 
 
 class Database:
@@ -11,9 +21,26 @@ class Database:
     Spins up a redis database
     """
 
-    def __init__(self, storage: Path) -> None:
-        self.assets = AssetStorage(path=storage / "assets")
-        self.structures = StructureStorage(path=storage / "structures")
+    def __init__(self, path: Path, adapters: List[Adapter] = []) -> None:
+        self.assets = AssetStorage(path=path / "assets")
+        self.structures = StructureStorage(path=path / "structures")
+        self.adapters = adapters
+        self.db = redis.Redis(host="localhost", port=6379, decode_responses=True)
+        schema = (
+            TextField("$.id", as_name="id"),
+            TextField("$.sequence", as_name="sequence"),
+        )
+        self.index = self.db.ft("idx:proteins").create_index(
+            schema,
+            definition=IndexDefinition(prefix=["protein:"], index_type=IndexType.JSON),
+        )
+
+    def sync(self):
+        for adapter in self.adapters:
+            adapter.sync(self)
+
+    def add_protein(self, protein):
+        self.db.set(f"protein:{protein.id}", RedisPath.root_path(), protein.to_dict())
 
     def create_collection(
         self, query: str, path: Union[str, Path], assets: List[str] = []
@@ -21,24 +48,8 @@ class Database:
         """
         Queries the database and returns a protein collection with metadata and assets.
         """
-        import numpy as np
-        from .utilities import amino_acid_alphabet
-
-        rng = np.random.default_rng(42)
-        dummies = [
-            {
-                "ID": f"protein_{i}",
-                "x": rng.integers(0, 100, size=300),
-                "y": rng.integers(0, 100, size=300),
-                "z": rng.integers(0, 100, size=300),
-                "sequence": "".join(
-                    rng.choice(list(amino_acid_alphabet)) for _ in range(300)
-                ),
-            }
-            for i in range(100)
-        ]
-
+        proteins = self.index.search(Query(query))
         collection = Collection(path=path)
-        collection.add_proteins(dummies)
+        collection.add_proteins(proteins)
         collection.add_assets(self.assets.get(assets))
         return collection

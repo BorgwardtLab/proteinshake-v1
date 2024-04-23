@@ -18,13 +18,9 @@ class Dataset(ABC):
     Provides a Collection for the Task.
     """
 
-    query = ""
-    assets = []
-    transforms = []
-
     def __init__(
         self,
-        path: Union[str, Path] = Path(os.path.expanduser("~/.proteinshake/datasets")),
+        path: Union[str, Path] = Path.home() / ".proteinshake" / "datasets",
         version: str = "latest",
         download: bool = False,
     ) -> None:
@@ -33,33 +29,31 @@ class Dataset(ABC):
             version = self.latest_version
         if download:
             pass
-        self.load(version)
+        if os.path.exists(self.version_path(version)):
+            self.load(version)
+        else:
+            self.release()
 
     @property
     def latest_version(self) -> str:
-        files = glob.glob(f"{self.path}-v*.collection")
-        versions = [re.search(r"-v(.*?)\.collection", name).group(1) for name in files]
-        versions = [datetime.strptime(v, "%Y%b%d") for v in versions]
-        versions.sort()
+        files = glob.glob(f"{self.path}-*.collection")
+        versions = [re.search(r"-(.*?)\.collection", name).group(1) for name in files]
+        dates = [datetime.strptime(v, "%Y%b%d") for v in versions]
+        versions = [v for _, v in sorted(zip(dates, versions))]
         return versions[-1] if len(versions) > 0 else None
 
     def version_path(self, version: str):
-        return Path(f"{self.path}-v{version}.collection")
+        return Path(f"{self.path}-{version}.collection")
 
     def load(self, version: str):
         self.collection = Collection(path=self.version_path(version))
 
+    @abstractmethod
     def release(
         self,
-        database: Union[str, Path] = Path("~/.proteinshake/database"),
         version: str = None,
     ) -> None:
         """
         Creates a new version of the dataset.
         """
-        self.collection = Database(database).create_collection(
-            query=self.query,
-            assets=self.assets,
-            path=self.version_path(version or current_date()),
-        )
-        self.collection.apply(self.transforms)
+        return

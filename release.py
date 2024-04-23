@@ -2,7 +2,8 @@
 Takes a dataset name as argument and creates a new version at the path specified in $PROTEINSHAKE_RELEASE_PATH.
 """
 
-import argparse, importlib, os, pathlib
+import argparse, importlib, os
+from pathlib import Path
 
 parser = argparse.ArgumentParser(
     prog="ProteinShake",
@@ -11,12 +12,12 @@ parser = argparse.ArgumentParser(
 parser.add_argument("dataset", help="Name of the dataset")
 args = parser.parse_args()
 
-datasets = importlib.import_module("proteinshake.datasets")
+datasets = importlib.import_module("..proteinshake.datasets")
 Dataset = getattr(datasets, args.dataset)
 
 Dataset(
     path=os.environ.get(
         "PROTEINSHAKE_RELEASE_PATH",
-        pathlib.Path.home() / ".proteinshake",
+        Path.home() / ".proteinshake" / "datasets",
     )
 ).release()
