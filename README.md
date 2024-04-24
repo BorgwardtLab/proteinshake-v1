@@ -10,7 +10,7 @@
 
 ![build](https://img.shields.io/github/actions/workflow/status/borgwardtlab/proteinshake-v1/build.yml?color=%2303A9F4&style=for-the-badge)
 [![pypi](https://img.shields.io/pypi/v/proteinshake?color=%2303A9F4&style=for-the-badge)](https://pypi.org/project/proteinshake/)
-[![docs](https://img.shields.io/readthedocs/proteinshake?color=%2303A9F4&style=for-the-badge)](https://proteinshake.readthedocs.io/en/latest/?badge=latest)
+[![docs](https://img.shields.io/readthedocs/proteinshake-v1?color=%2303A9F4&style=for-the-badge)](https://proteinshake-v1.readthedocs.io/en/latest/?badge=latest)
 [![downloads](https://img.shields.io/pypi/dm/proteinshake?color=%2303A9F4&style=for-the-badge)](https://pypi.org/project/proteinshake/)
 [![codecov](https://img.shields.io/codecov/c/gh/BorgwardtLab/proteinshake-v1?color=%2303A9F4&style=for-the-badge&token=0NL6CQZ6MB)](https://codecov.io/gh/BorgwardtLab/proteinshake-v1)
 </div>
