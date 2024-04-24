@@ -1,1 +1,1 @@
-from .test_dataset import TestDataset
+from .dummy_dataset import DummyDataset

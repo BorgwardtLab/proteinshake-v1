@@ -7,11 +7,11 @@ import os
 from pathlib import Path
 
 
-class TestDataset(Dataset):
+class DummyDataset(Dataset):
 
     def release(self, version: str = None) -> None:
         proteins = LocalAdapter(Path(os.path.expandvars("$PROTEINSHAKE_RAWDATA_PATH"))/"test_data").sync()
-        collection = Collection(path=self.version_path(version or current_date()))
-        collection.add_proteins(proteins)
-        collection.add_assets(proteins.assets)
+        self.collection = Collection(path=self.version_path(version or current_date()))
+        self.collection.add_proteins(proteins)
+        self.collection.add_assets(proteins.assets)
         self.collection.apply([])

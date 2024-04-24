@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("dataset", help="Name of the dataset")
 args = parser.parse_args()
 
-datasets = importlib.import_module("..proteinshake.datasets")
+datasets = importlib.import_module("proteinshake.datasets")
 Dataset = getattr(datasets, args.dataset)
 
 Dataset(
@@ -20,4 +20,4 @@ Dataset(
         "PROTEINSHAKE_RELEASE_PATH",
         Path.home() / ".proteinshake" / "datasets",
     )
-).release()
+)
