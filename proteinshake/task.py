@@ -1,30 +1,24 @@
 from typing import Union
 import numpy as np
-import os
+import os, itertools
 from pathlib import Path
 from functools import partial
-from proteinshake.split import Split
 from proteinshake.target import Target
 from proteinshake.metric import Metric
 from proteinshake.transform import Transform, Compose, IdentityTransform
-from proteinshake.utils import amino_acid_alphabet, sharded, save_shards, load, warn
+from proteinshake.utils import sharded, save_shards, load, warn
 
 
 class Task:
     dataset: str = ""
-    split: Split = None
     target: Target = None
     metrics: Metric = None
-    augmentation: Transform = IdentityTransform
+    augmentation: Transform = IdentityTransform()
 
     def __init__(
         self,
         root: Union[str, None] = None,  # default path in ~/.proteinshake
         shard_size: int = 1024,
-        split_kwargs: dict = {},
-        target_kwargs: dict = {},
-        metrics_kwargs: dict = {},
-        augmentation_kwargs: dict = {},
     ) -> None:
         # create root
         if root is None:
@@ -37,47 +31,34 @@ class Task:
         self.root = root
         self.shard_size = shard_size
 
-        # assign task modules
-        self.split = self.split(**split_kwargs)
-        self.target = self.target(**target_kwargs)
-        self.metrics = self.metrics(**metrics_kwargs)
-        self.augmentation = self.augmentation(**augmentation_kwargs)
-
-    @property
-    def proteins(self):
-        # return dataset iterator
-        # this is a dummy for now. It will load a dataset from file in the future.
-        rng = np.random.default_rng(42)
-        return (
-            {
-                "ID": f"protein_{i}",
-                "coords": rng.integers(0, 100, size=(300, 3)),
-                "sequence": "".join(
-                    rng.choice(list(amino_acid_alphabet)) for _ in range(300)
-                ),
-                "label": rng.random() * 100,
-                "split": rng.choice(["train", "test", "val"]),
-            }
-            for i in range(100)
-        )
-
     def transform(self, *transforms) -> None:
-        Xy = self.target(self.proteins)
+        Xy = self.target(self.dataset.collection.proteins)
         partitions = self.split(Xy)
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
         self.transform.fit(partitions["train"])
-        for name, Xy in partitions.items():
+        for split_name, Xy in partitions.items():
             Xy = sharded(Xy, shard_size=self.shard_size)
             data_transformed = (
                 self.transform.deterministic_transform(shard) for shard in Xy
             )
             save_shards(
                 data_transformed,
-                self.root / self.split.hash / name / self.transform.hash / "shards",
+                self.root / split_name / self.transform.hash / "shards",
             )
-            setattr(self, f"{name}_loader", partial(self.loader, split=name))
+            setattr(
+                self, f"{split_name}_loader", partial(self.loader, split=split_name)
+            )
         return self
+
+    def split(self, Xy):
+        train, testval = itertools.tee(Xy)
+        test, val = itertools.tee(testval)
+        return {
+            "train": filter(lambda Xy: Xy[0][0]["split"] == "train", train),
+            "test": filter(lambda Xy: Xy[0][0]["split"] == "test", test),
+            "val": filter(lambda Xy: Xy[0][0]["split"] == "val", val),
+        }
 
     def loader(
         self,
@@ -88,9 +69,13 @@ class Task:
         **kwargs,
     ):
         rng = np.random.default_rng(random_seed)
-        path = self.root / self.split.hash / split / self.transform.hash / "shards"
+        path = self.root / split / self.transform.hash / "shards"
         shard_index = load(path / "index.npy")
-        if self.shard_size % batch_size != 0 and batch_size % self.shard_size != 0:
+        if (
+            not batch_size is None
+            and self.shard_size % batch_size != 0
+            and batch_size % self.shard_size != 0
+        ):
             warn(
                 "batch_size is not a multiple of shard_size. This causes inefficient data loading."
             )
@@ -102,7 +87,7 @@ class Task:
             while current_shard := next(shards):
                 current_X, current_y = current_shard
                 X_batch, y_batch = [], []
-                while len(X_batch) < batch_size:
+                while len(X_batch) < (batch_size or np.inf):
                     b = batch_size - len(X_batch)
                     X_piece, current_X = current_X[:b], current_X[b:]
                     y_piece, current_y = current_y[:b], current_y[b:]
@@ -114,9 +99,11 @@ class Task:
                             current_X, current_y = current_shard
                         except StopIteration:
                             break
-                yield self.transform.stochastic_transform(
-                    (np.asarray(X_batch), np.asarray(y_batch))
-                )
+                X_batch, y_batch = np.asarray(X_batch), np.asarray(y_batch)
+                if shuffle:
+                    permutation = rng.permutation(len(X_batch))
+                    X_batch, y_batch = X_batch[permutation], y_batch[permutation]
+                yield self.transform.stochastic_transform((X_batch, y_batch))
 
         return self.transform.create_loader(generator, **kwargs)
 

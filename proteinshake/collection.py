@@ -1,9 +1,8 @@
 from typing import Dict, Any, List, Union
 from pathlib import Path
-from .protein import Protein
 from .collection_transform import CollectionTransform
-from .utils import ProteinGenerator, save, load
-import os
+from .utils import ProteinGenerator, save, load, dict_to_avro_schema
+import os, itertools
 from fastavro import writer as avro_writer, reader as avro_reader
 
 
@@ -15,26 +14,27 @@ class Collection:
 
     def __init__(self, path: Union[str, Path]) -> None:
         self.path = Path(path)
+
+    def add_proteins(self, proteins: List[Dict]):
+        num_proteins = len(proteins)
         if not os.path.exists(self.path / "proteins.avro"):
-            # write empty avro file:
+            proteins, tee = itertools.tee(proteins)
+            schema = dict_to_avro_schema(next(tee))
+            print(schema)
             os.makedirs(self.path, exist_ok=True)
             with open(self.path / "proteins.avro", "wb") as file:
                 avro_writer(
                     file,
-                    Protein.avro_schema(),
+                    schema,
                     [],
                     metadata={"number_of_proteins": str(0)},
                 )
-
-    def add_proteins(self, proteins: List[Protein]):
         with open(self.path / "proteins.avro", "a+b") as file:
             avro_writer(
                 file,
                 None,
-                (protein.to_dict() for protein in proteins),
-                metadata={
-                    "number_of_proteins": str(len(self.proteins) + len(proteins))
-                },
+                proteins,
+                metadata={"number_of_proteins": str(len(self.proteins) + num_proteins)},
             )
 
     def add_assets(self, assets: Dict[str, Any]) -> None:
@@ -45,14 +45,17 @@ class Collection:
 
     def apply(self, transforms: List[CollectionTransform]):
         proteins = self.proteins
+        num_proteins = len(proteins)
         for transform in transforms:
             proteins = transform(proteins)
+        proteins, tee = itertools.tee(proteins)
+        schema = dict_to_avro_schema(next(tee))
         with open(self.path / "proteins_transformed.avro", "wb") as file:
             avro_writer(
                 file,
-                Protein.avro_schema(),
+                schema,
                 proteins,
-                metadata={"number_of_proteins": str(len(proteins))},
+                metadata={"number_of_proteins": str(num_proteins)},
             )
         os.rename(self.path / "proteins_transformed.avro", self.path / "proteins.avro")
 

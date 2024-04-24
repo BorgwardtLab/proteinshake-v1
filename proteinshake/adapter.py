@@ -1,10 +1,11 @@
+from pathlib import Path
+from typing import Union
+
+
 class Adapter:
     """
     Provides an API to an online database.
     """
 
-    def __init__(self) -> None:
-        pass
-
-    def sync(self):
+    def download(self):
         pass

@@ -10,10 +10,9 @@ from ..utils import ProteinGenerator
 class LocalAdapter(Adapter):
 
     def __init__(self, path: Union[str, Path]) -> None:
-        super().__init__()
         self.path = Path(path)
 
-    def sync(self):
+    def download(self):
         files = [
             os.path.join(root, file)
             for root, dirs, files in os.walk(self.path)

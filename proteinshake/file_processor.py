@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Union
 from biopandas.pdb import PandasPdb
 from biopandas.mmcif import PandasMmcif
-from .protein import Protein
 
 
 class FileProcessor:
@@ -30,4 +29,10 @@ class FileProcessor:
             df = pdb.df["ATOM"]
             sequence = "".join(pdb.amino3to1()["auth_comp_id"].to_list())
             x, y, z = df.Cartn_x.to_list(), df.Cartn_y.to_list(), df.Cartn_z.to_list()
-        return Protein(id="id", sequence=sequence, x=x, y=y, z=z)
+        return {
+            "ID": id,
+            "sequence": sequence,
+            "x": x,
+            "y": y,
+            "z": z,
+        }

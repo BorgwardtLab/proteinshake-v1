@@ -7,7 +7,7 @@ import locale
 from fastavro import parse_schema as parse_avro_schema
 
 
-def avro_schema_from_example(example):
+def dict_to_avro_schema(data):
     """Guesses the avro schema from a dictionary.
 
     Parameters
@@ -22,38 +22,20 @@ def avro_schema_from_example(example):
     """
     typedict = {"int": "int", "float": "float", "str": "string", "bool": "boolean"}
 
-    def field_spec(k, v):
-        if type(v) == dict:
-            return {
-                "name": k,
-                "type": {
-                    "name": k,
-                    "type": "record",
-                    "fields": [field_spec(_k, _v) for _k, _v in v.items()],
-                },
-            }
-        elif type(v) == list:
-            return {
-                "name": k,
-                "type": {
-                    "type": "array",
-                    "items": typedict[type(v[0]).__name__] if len(v) > 0 else "string",
-                },
-            }
-        elif type(v).__name__ in typedict:
-            return {"name": k, "type": typedict[type(v).__name__]}
+    if isinstance(data, dict):
+        fields = []
+        for name, value in data.items():
+            fields.append({"name": name, "type": dict_to_avro_schema(value)})
+        return {"type": "record", "name": "Record", "fields": fields}
+    elif isinstance(data, list):
+        if len(data) > 0:
+            return {"type": "array", "items": dict_to_avro_schema(data[0])}
         else:
-            raise TypeError(
-                f"All fields in a protein object need to be either int, float, bool or string, not {type(v).__name__}"
-            )
-
-    schema = {
-        "name": "Protein",
-        "namespace": "Dataset",
-        "type": "record",
-        "fields": [field_spec(k, v) for k, v in example.items()],
-    }
-    return parse_avro_schema(schema)
+            return {"type": "null"}
+    elif type(data).__name__ in typedict:
+        return {"type": typedict[type(data).__name__]}
+    else:
+        raise ValueError(f"Unsupported data type: {type(data)}")
 
 
 class ProteinGenerator(object):
@@ -160,7 +142,7 @@ def save_shards(iterator, path):
     path = Path(path)
     for i, shard in enumerate(iterator):
         save(shard, path / f"{i}.pkl")
-    save(np.arange(i), path / "index.npy")
+    save(np.arange(i + 1), path / "index.npy")
 
 
 def error(msg):
