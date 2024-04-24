@@ -5,4 +5,4 @@ torch_geometric
 dgl
 tensorflow
 networkx
-sphinxawesome-theme==5.0.0b2
+sphinxawesome-theme
