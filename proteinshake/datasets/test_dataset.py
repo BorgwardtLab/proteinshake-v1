@@ -1,7 +1,7 @@
 from ..dataset import Dataset
 from ..adapters import LocalAdapter
 from ..collection import Collection
-from ..utilities import current_date
+from ..utils import current_date
 from ..collection_transforms import RandomSplit
 import os
 from pathlib import Path

@@ -1,4 +1,4 @@
-from .utilities import avro_schema_from_example, self_assign
+from .utils import avro_schema_from_example, self_assign
 
 
 class Protein:

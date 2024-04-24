@@ -6,7 +6,7 @@ import glob, re, os
 
 from .database import Database
 from .collection import Collection
-from .utilities import current_date
+from .utils import current_date
 
 
 class Dataset(ABC):

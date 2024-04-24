@@ -22,4 +22,4 @@ This function is applied to the protein dictionary of every protein in a dataset
 
 .. automodule:: proteinshake.transforms
     :members:
-    :exclude-members: target, evaluate, compute_splits, compute_token_map
+    :exclude-members:

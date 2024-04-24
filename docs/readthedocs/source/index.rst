@@ -33,10 +33,9 @@ New datasets and tasks can be created with just a few lines of code (see the :do
 
    notes/installation
    notes/quickstart
-   notes/overview
-   notes/datasets
-   notes/tasks
+   notes/tutorial
    notes/custom
+   notes/developer
    notes/contribution
    notes/submission
    notes/citation
@@ -48,7 +47,5 @@ New datasets and tasks can be created with just a few lines of code (see the :do
 
    modules/datasets
    modules/tasks
-   modules/representations
    modules/transforms
-   modules/frameworks
    modules/utils

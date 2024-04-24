@@ -5,7 +5,7 @@ import os
 from ..adapter import Adapter
 from ..database import Database
 from ..file_processor import FileProcessor
-from ..utilities import ProteinGenerator
+from ..utils import ProteinGenerator
 
 
 class LocalAdapter(Adapter):

@@ -7,7 +7,7 @@ from proteinshake.split import Split
 from proteinshake.target import Target
 from proteinshake.metric import Metric
 from proteinshake.transform import Transform, Compose, IdentityTransform
-from proteinshake.utilities import amino_acid_alphabet, sharded, save_shards, load, warn
+from proteinshake.utils import amino_acid_alphabet, sharded, save_shards, load, warn
 
 
 class Task:

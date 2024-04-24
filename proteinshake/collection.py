@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Union
 from pathlib import Path
 from .protein import Protein
 from .collection_transform import CollectionTransform
-from .utilities import ProteinGenerator, save, load
+from .utils import ProteinGenerator, save, load
 import os
 from fastavro import writer as avro_writer, reader as avro_reader
 

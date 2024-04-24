@@ -1,5 +1,5 @@
 from ..collection_transform import CollectionTransform
-from ..utilities import ProteinGenerator
+from ..utils import ProteinGenerator
 from sklearn.model_selection import train_test_split
 import numpy as np
 

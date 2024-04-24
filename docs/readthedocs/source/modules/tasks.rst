@@ -23,4 +23,4 @@ This snippet highlights the most common usage for a ``Task`` object. ::
 
 .. automodule:: proteinshake.tasks
     :members:
-    :exclude-members: target, evaluate, compute_splits, compute_token_map, task_type, num_classes, num_features, DatasetClass, compute_custom_split
+    :exclude-members:
