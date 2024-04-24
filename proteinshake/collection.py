@@ -20,7 +20,6 @@ class Collection:
         if not os.path.exists(self.path / "proteins.avro"):
             proteins, tee = itertools.tee(proteins)
             schema = dict_to_avro_schema(next(tee))
-            print(schema)
             os.makedirs(self.path, exist_ok=True)
             with open(self.path / "proteins.avro", "wb") as file:
                 avro_writer(

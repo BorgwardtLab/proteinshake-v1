@@ -48,7 +48,6 @@ class TestDatasets(unittest.TestCase):
 
             class TestTarget(Target):
                 def __call__(self, dataset):
-                    print(next(dataset))
                     return (((p,), p["label"]) for p in dataset)
 
             class TestMetric(Metric):

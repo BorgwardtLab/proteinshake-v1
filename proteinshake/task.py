@@ -84,11 +84,14 @@ class Task:
             if shuffle:
                 rng.shuffle(shard_index)
             shards = (load(path / f"{i}.pkl") for i in shard_index)
-            while current_shard := next(shards):
+            for current_shard in shards:
                 current_X, current_y = current_shard
                 X_batch, y_batch = [], []
                 while len(X_batch) < (batch_size or np.inf):
-                    b = batch_size - len(X_batch)
+                    if batch_size is None:
+                        b = len(current_X)
+                    else:
+                        b = batch_size - len(X_batch)
                     X_piece, current_X = current_X[:b], current_X[b:]
                     y_piece, current_y = current_y[:b], current_y[b:]
                     X_batch = X_batch + list(X_piece)
