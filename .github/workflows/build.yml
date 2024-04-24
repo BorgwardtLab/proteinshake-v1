@@ -27,7 +27,6 @@ jobs:
           pip install flake8 pytest Cython
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install torch_geometric tensorflow-cpu dgl
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
         run: |
           export PATH=$(pwd):$PATH

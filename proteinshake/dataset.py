@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 import glob, re, os
 
-from .database import Database
 from .collection import Collection
 from .utils import current_date
 
