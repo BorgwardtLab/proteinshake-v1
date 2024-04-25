@@ -1,13 +1,21 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-import glob, os, inspect, itertools
+import os, inspect, itertools
 from typing import Dict, Any, List, Union
-from .modifier import Modifier
-from .utils import ProteinGenerator, save, load, dict_to_avro_schema, warn
 from fastavro import writer as avro_writer, reader as avro_reader
-
-from .collection import Collection
+from .modifier import Modifier
+from .utils import (
+    ProteinGenerator,
+    save,
+    load,
+    dict_to_avro_schema,
+    warn,
+    info,
+    error,
+    LOCATIONS,
+    current_date,
+)
 
 
 class Dataset(ABC):
@@ -21,33 +29,45 @@ class Dataset(ABC):
 
     def __init__(
         self,
-        path: Union[str, Path] = Path.home() / ".proteinshake" / "datasets",
+        root: Union[str, Path] = LOCATIONS.datasets,
         version: str = "latest",
-        download: bool = False,
+        online: bool = True,
     ) -> None:
-        self.path = Path(path) / self.__class__.__name__
+        self.root = Path(root) / self.__class__.__name__
         if version == "latest":
-            version = self.latest_version
-        if download:
-            pass
-        if os.path.exists(self.version_path(version)):
-            self.load(version)
-        else:
-            self.release()
+            if online:
+                version = self.latest_online_version
+                if version is None:
+                    info(f"{self.__class__.__name__} is not hosted. Looking locally.")
+                    version = self.latest_local_version
+            else:
+                version = self.latest_local_version
+            if version is None:
+                info("Could not find dataset. Running a release.")
+                version = self.release()
+        if not os.path.exists(self.root / version) and (
+            online and self.download(version) is None
+        ):
+            error(
+                "Could not find {self.__class__.__name__} version {version}. Change the version or run a release by calling .release() on the dataset."
+            )
+        self.path = self.root / version
 
     @property
-    def latest_version(self) -> str:
-        files = glob.glob(f"{self.path}-*")
-        versions = [name.split("-")[-1] for name in files]
+    def latest_local_version(self) -> str:
+        versions = [entry.name for entry in os.scandir(self.root) if entry.is_dir()]
         dates = [datetime.strptime(v, "%Y%b%d") for v in versions]
         versions = [v for _, v in sorted(zip(dates, versions))]
         return versions[-1] if len(versions) > 0 else None
 
-    def version_path(self, version: str):
-        return Path(f"{self.path}-{version}")
+    @property
+    def latest_online_version(self) -> str:
+        return None
 
-    def load(self, version: str):
-        self.collection = Collection(path=self.version_path(version))
+    def download(self, version):
+        # if dataset is not hosted or version does not exist online: return None
+        # download version to self.root
+        return None
 
     def add_proteins(self, proteins: List[Dict]):
         num_proteins = len(proteins)
@@ -77,6 +97,7 @@ class Dataset(ABC):
         save(assets, self.path / "assets.json")
 
     def apply(self, transforms: List[Modifier], replace=False):
+        print(inspect.stack()[1][3])
         if not replace and inspect.stack()[1][3] == "release":
             warn(
                 "self.apply() should be called with replace=True in the .release() method of a dataset."
@@ -117,7 +138,7 @@ class Dataset(ABC):
     @abstractmethod
     def release(
         self,
-        version: str = None,
+        version: str = current_date(),
     ) -> None:
         """
         Creates a new version of the dataset.

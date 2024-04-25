@@ -4,7 +4,29 @@ from pathlib import Path
 import numpy as np
 import time
 import locale
-from fastavro import parse_schema as parse_avro_schema
+from types import SimpleNamespace
+
+LOCATIONS = SimpleNamespace(
+    datasets=Path(
+        os.environ.get(
+            "PROTEINSHAKE_DATASET_ROOT",
+            Path.home() / ".proteinshake" / "datasets",
+        )
+    ),
+    raw=Path(
+        os.environ.get(
+            "PROTEINSHAKE_RAWDATA_ROOT",
+            Path.home() / ".proteinshake" / "raw",
+        )
+    ),
+    tasks=Path(
+        os.environ.get(
+            "PROTEINSHAKE_TASK_ROOT",
+            Path.home() / ".proteinshake" / "tasks",
+        )
+    ),
+    home=Path.home() / ".proteinshake",
+)
 
 
 def dict_to_avro_schema(data):

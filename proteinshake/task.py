@@ -32,7 +32,7 @@ class Task:
         self.shard_size = shard_size
 
     def transform(self, *transforms) -> None:
-        Xy = self.target(self.dataset.collection.proteins)
+        Xy = self.target(self.dataset.proteins)
         partitions = self.split(Xy)
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
