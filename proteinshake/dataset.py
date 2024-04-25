@@ -49,12 +49,14 @@ class Dataset(ABC):
             online and self.download(version) is None
         ):
             error(
-                "Could not find {self.__class__.__name__} version {version}. Change the version or run a release by calling .release() on the dataset."
+                f"Could not find {self.__class__.__name__} version {version}. Change the version or run a release by calling .release(version_name) on the dataset."
             )
         self.path = self.root / version
 
     @property
     def latest_local_version(self) -> str:
+        if not os.path.exists(self.root):
+            return None
         versions = [entry.name for entry in os.scandir(self.root) if entry.is_dir()]
         dates = [datetime.strptime(v, "%Y%b%d") for v in versions]
         versions = [v for _, v in sorted(zip(dates, versions))]
@@ -69,53 +71,24 @@ class Dataset(ABC):
         # download version to self.root
         return None
 
-    def add_proteins(self, proteins: List[Dict]):
+    def save(self, proteins, version: str = None):
+        version = version or current_date()
+        if os.path.exists(self.root / version):
+            error(f"Version {version} alreadt exists!")
         num_proteins = len(proteins)
-        if not os.path.exists(self.path / "proteins.avro"):
-            proteins, tee = itertools.tee(proteins)
-            schema = dict_to_avro_schema(next(tee))
-            os.makedirs(self.path, exist_ok=True)
-            with open(self.path / "proteins.avro", "wb") as file:
-                avro_writer(
-                    file,
-                    schema,
-                    [],
-                    metadata={"number_of_proteins": str(0)},
-                )
-        with open(self.path / "proteins.avro", "a+b") as file:
-            avro_writer(
-                file,
-                None,
-                proteins,
-                metadata={"number_of_proteins": str(len(self.proteins) + num_proteins)},
-            )
-
-    def add_assets(self, assets: Dict[str, Any]) -> None:
-        """
-        Adds any kind of metadata to the collection.
-        """
-        save(assets, self.path / "assets.json")
-
-    def apply(self, transforms: List[Modifier], replace=False):
-        print(inspect.stack()[1][3])
-        if not replace and inspect.stack()[1][3] == "release":
-            warn(
-                "self.apply() should be called with replace=True in the .release() method of a dataset."
-            )
-        proteins = self.proteins
-        num_proteins = len(proteins)
-        for transform in transforms:
-            proteins = transform(proteins)
+        self.path = self.root / version
+        save(proteins.assets, self.path / "assets.json")
         proteins, tee = itertools.tee(proteins)
         schema = dict_to_avro_schema(next(tee))
-        with open(self.path / "proteins_transformed.avro", "wb") as file:
+        os.makedirs(self.path, exist_ok=True)
+        with open(self.path / "proteins.avro", "wb") as file:
             avro_writer(
                 file,
                 schema,
                 proteins,
                 metadata={"number_of_proteins": str(num_proteins)},
             )
-        os.rename(self.path / "proteins_transformed.avro", self.path / "proteins.avro")
+        return version
 
     @property
     def proteins(self):
@@ -136,10 +109,7 @@ class Dataset(ABC):
         return ProteinGenerator(reader(), total, assets)
 
     @abstractmethod
-    def release(
-        self,
-        version: str = current_date(),
-    ) -> None:
+    def release(self, version: str = None) -> None:
         """
         Creates a new version of the dataset.
         """

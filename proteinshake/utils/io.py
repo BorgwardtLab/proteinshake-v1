@@ -5,6 +5,9 @@ import numpy as np
 import time
 import locale
 from types import SimpleNamespace
+from rich.console import Console
+
+console = Console()
 
 LOCATIONS = SimpleNamespace(
     datasets=Path(
@@ -168,12 +171,12 @@ def save_shards(iterator, path):
 
 
 def error(msg):
-    raise "ERROR: " + msg
+    console.print_exception(msg)
 
 
 def warn(msg):
-    print("WARNING:", msg)
+    console.print(f"Warning: {msg}", style="yellow")
 
 
 def info(msg):
-    print("INFO:", msg)
+    console.print(f"Info: {msg}", style="cyan")
