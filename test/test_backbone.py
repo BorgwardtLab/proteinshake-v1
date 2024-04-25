@@ -10,7 +10,7 @@ from proteinshake.transform import Transform
 import numpy as np
 
 
-class TestDatasets(unittest.TestCase):
+class TestBackbone(unittest.TestCase):
 
     def test(self):
         with tempfile.TemporaryDirectory() as tmp:

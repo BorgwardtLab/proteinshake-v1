@@ -1,2 +1,2 @@
-from .point_cloud import *
-from .torch_framework import *
+from ..representations.point_cloud import *
+from ..frameworks.torch_framework import *
