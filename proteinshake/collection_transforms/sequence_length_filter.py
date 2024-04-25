@@ -1,4 +1,4 @@
-from ..collection_transform import CollectionTransform
+from ..modifier import CollectionTransform
 
 
 class SequenceLengthFilter(CollectionTransform):

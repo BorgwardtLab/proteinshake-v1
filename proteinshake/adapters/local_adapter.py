@@ -3,7 +3,7 @@ from typing import Union
 import os
 
 from ..adapter import Adapter
-from ..file_processor import FileProcessor
+from ..processor import FileProcessor
 from ..utils import ProteinGenerator
 
 

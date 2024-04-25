@@ -4,7 +4,7 @@ from biopandas.pdb import PandasPdb
 from biopandas.mmcif import PandasMmcif
 
 
-class FileProcessor:
+class Processor:
     """
     Converts a pdb/mmcif file to a more efficient Atoms & Residue format. Implements QC.
     Applies transforms to clean and polish the structure, e.g. energy minimization.
