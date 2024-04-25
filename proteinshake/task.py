@@ -62,14 +62,14 @@ class Task:
 
     def loader(
         self,
-        split=None,
+        split=0,
         batch_size=None,
         shuffle: bool = False,
         random_seed: Union[int, None] = None,
         **kwargs,
     ):
         rng = np.random.default_rng(random_seed)
-        path = self.root / split / self.transform.hash / "shards"
+        path = self.root / split / hash(self.transform) / "shards"
         shard_index = load(path / "index.npy")
         if (
             not batch_size is None

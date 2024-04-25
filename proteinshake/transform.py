@@ -86,8 +86,7 @@ class Compose:
                     error("You cannot use more than one framework.")
                 setattr(self, "create_loader", transform.create_loader)
 
-    @property
-    def hash(self):
+    def __hash___(self):
         return self.__class__.__name__
 
     def fit(self, dataset):
