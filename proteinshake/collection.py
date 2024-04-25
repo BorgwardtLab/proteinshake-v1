@@ -1,6 +1,6 @@
 from typing import Dict, Any, List, Union
 from pathlib import Path
-from .modifier import CollectionTransform
+from .modifier import Modifier
 from .utils import ProteinGenerator, save, load, dict_to_avro_schema
 import os, itertools
 from fastavro import writer as avro_writer, reader as avro_reader
@@ -42,7 +42,7 @@ class Collection:
         """
         save(assets, self.path / "assets.json")
 
-    def apply(self, transforms: List[CollectionTransform]):
+    def apply(self, transforms: List[Modifier]):
         proteins = self.proteins
         num_proteins = len(proteins)
         for transform in transforms:

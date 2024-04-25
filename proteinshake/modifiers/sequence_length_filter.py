@@ -1,7 +1,7 @@
-from ..modifier import CollectionTransform
+from ..modifier import Modifier
 
 
-class SequenceLengthFilter(CollectionTransform):
+class SequenceLengthFilter(Modifier):
 
     def __init__(self, max_length=None) -> None:
         super().__init__()

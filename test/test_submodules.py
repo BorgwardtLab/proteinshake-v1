@@ -4,48 +4,59 @@ import numpy as np
 
 class TestSubmodules(unittest.TestCase):
 
-    def _check_submodule(self, submodule, superclass):
-        module = importlib.import_module(f"proteinshake.{submodule}")
-        for name in dir(module):
-            cls = getattr(module, name)
+    def _get_members(self, name):
+        supermodule = importlib.import_module(f"proteinshake.{name}")
+        superclass = getattr(supermodule, name.capitalize())
+        submodule = importlib.import_module(f"proteinshake.{name}s")
+        subclasses = dict(
+            [
+                (name, cls)
+                for name, cls in submodule.__dict__.items()
+                if isinstance(cls, type)
+            ]
+        )
+        for cls_name, cls in subclasses.items():
+            print(cls_name, cls)
             if issubclass(cls, superclass):
-                # try to instantiate submodule member class
-                instance = cls()
+                yield cls
 
     def test_adapters(self):
-        from proteinshake.adapter import Adapter
-
-        self._check_submodule("adapters", Adapter)
+        for Adapter in self._get_members("adapter"):
+            adapter = Adapter()
 
     def test_datasets(self):
-        from proteinshake.adapter import Dataset
+        with tempfile.TemporaryDirectory() as tmp:
+            for Dataset in self._get_members("dataset"):
+                dataset = Dataset(path=tmp)
 
-        self._check_submodule("datasets", Dataset)
+    def test_frameworks(self):
+        for Framework in self._get_members("framework"):
+            framework = Framework()
 
     def test_metrics(self):
-        from proteinshake.adapter import Metric
-
-        self._check_submodule("metrics", Metric)
+        for Metric in self._get_members("metric"):
+            metric = Metric()
 
     def test_modifiers(self):
-        from proteinshake.adapter import Modifier
+        for Modifier in self._get_members("modifier"):
+            modifier = Modifier()
 
-        self._check_submodule("modifiers", Modifier)
+    def test_representations(self):
+        for Representation in self._get_members("representation"):
+            representation = Representation()
 
     def test_targets(self):
-        from proteinshake.adapter import Targets
-
-        self._check_submodule("targets", Targets)
+        for Target in self._get_members("target"):
+            target = Target()
 
     def test_tasks(self):
-        from proteinshake.adapter import Task
-
-        self._check_submodule("tasks", Task)
+        with tempfile.TemporaryDirectory() as tmp:
+            for Task in self._get_members("task"):
+                task = Task(root=tmp)
 
     def test_transforms(self):
-        from proteinshake.adapter import Transform
-
-        self._check_submodule("transforms", Transform)
+        for Transform in self._get_members("transform"):
+            transform = Transform()
 
 
 if __name__ == "__main__":

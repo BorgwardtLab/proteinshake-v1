@@ -2,7 +2,7 @@ from typing import Tuple
 from proteinshake.utils import error
 
 
-class BaseTransform:
+class Transform:
     """
     Abstract class for transforms. A transform can be stochastic or deterministic, which decides whether the transformed result can be precomputed and saved to disk (deterministic), or if it needs to be computed when retrieving a data item (stochastic). Transforms generally take a batch of Xy tuples, some subclasses exist that facilitate reshaping (see below). Transforms can be fit beforehand (on the 'train' partition).
     """
@@ -19,7 +19,7 @@ class BaseTransform:
         raise NotImplementedError
 
 
-class Transform(BaseTransform):
+class DataTransform(Transform):
     def __call__(self, Xy):
         X, y = Xy
         shape = X.shape
@@ -30,7 +30,7 @@ class Transform(BaseTransform):
         return X
 
 
-class CoTransform(BaseTransform):
+class CoTransform(Transform):
     def __call__(self, Xy):
         return self.transform(*Xy)
 
@@ -38,7 +38,7 @@ class CoTransform(BaseTransform):
         return X, y
 
 
-class TupleTransform(BaseTransform):
+class TupleTransform(Transform):
     def __call__(self, Xy):
         X, y = Xy
         return self.transform(X), y
@@ -47,7 +47,7 @@ class TupleTransform(BaseTransform):
         return X
 
 
-class LabelTransform(BaseTransform):
+class LabelTransform(Transform):
     def __call__(self, Xy):
         X, y = Xy
         return X, self.transform(y)
@@ -59,7 +59,7 @@ class LabelTransform(BaseTransform):
         return y
 
 
-class IdentityTransform(BaseTransform):
+class IdentityTransform(Transform):
     def __call__(self, Xy):
         return Xy
 

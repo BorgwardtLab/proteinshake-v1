@@ -6,7 +6,7 @@ from proteinshake.collection import Collection
 from proteinshake.metric import Metric
 from proteinshake.target import Target
 from proteinshake.utils import current_date, ProteinGenerator, amino_acid_alphabet
-from proteinshake.transform import Transform
+from proteinshake.transform import DataTransform
 import numpy as np
 
 
@@ -54,7 +54,7 @@ class TestBackbone(unittest.TestCase):
                 def __call__(self, y_true, y_pred):
                     return {"Accuracy": np.random.random()}
 
-            class TestTransform(Transform):
+            class TestTransform(DataTransform):
                 def transform(self, X):
                     return X
 

@@ -1,10 +1,10 @@
-from ..modifier import CollectionTransform
+from ..modifier import Modifier
 from ..utils import ProteinGenerator
 from sklearn.model_selection import train_test_split
 import numpy as np
 
 
-class RandomSplit(CollectionTransform):
+class RandomSplit(Modifier):
 
     def __call__(self, proteins):
         index = np.arange(len(proteins))
