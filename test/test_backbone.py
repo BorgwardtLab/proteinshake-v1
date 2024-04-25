@@ -39,12 +39,9 @@ class TestBackbone(unittest.TestCase):
             class TestDataset(Dataset):
                 def release(self, version: str = None):
                     proteins = TestAdapter().download()
-                    self.collection = Collection(
-                        path=self.version_path(version or current_date())
-                    )
-                    self.collection.add_proteins(proteins)
-                    self.collection.add_assets(proteins.assets)
-                    self.collection.apply([])
+                    self.add_proteins(proteins)
+                    self.add_assets(proteins.assets)
+                    self.apply([], replace=True)
 
             class TestTarget(Target):
                 def __call__(self, dataset):

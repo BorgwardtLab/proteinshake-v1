@@ -1,5 +1,4 @@
 import unittest, tempfile, importlib
-import numpy as np
 
 
 class TestSubmodules(unittest.TestCase):
@@ -8,17 +7,11 @@ class TestSubmodules(unittest.TestCase):
         supermodule = importlib.import_module(f"proteinshake.{name}")
         superclass = getattr(supermodule, name.capitalize())
         submodule = importlib.import_module(f"proteinshake.{name}s")
-        subclasses = dict(
-            [
-                (name, cls)
-                for name, cls in submodule.__dict__.items()
-                if isinstance(cls, type)
-            ]
-        )
-        for cls_name, cls in subclasses.items():
-            print(cls_name, cls)
-            if issubclass(cls, superclass):
-                yield cls
+        return [
+            cls
+            for cls in submodule.__dict__.values()
+            if isinstance(cls, type) and issubclass(cls, superclass)
+        ]
 
     def test_adapters(self):
         for Adapter in self._get_members("adapter"):
