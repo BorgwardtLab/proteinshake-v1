@@ -5,13 +5,13 @@ ProteinShake can be installed through PyPI:
 
 .. code-block:: bash
 
-  pip install proteinshake 
+  currently not availabe
 
 To get the most recent developer version:
 
 .. code-block:: bash
 
-  pip install git+https://github.com/BorgwardtLab/proteinshake.git
+  pip install git+https://github.com/BorgwardtLab/proteinshake-v1.git
 
 .. note::
   Depending on which frameworks you choose to work with, you additionally need to install any of the following. Please follow their installation instructions.
