@@ -2,10 +2,9 @@ import unittest, tempfile
 from proteinshake.dataset import Dataset
 from proteinshake.task import Task
 from proteinshake.adapter import Adapter
-from proteinshake.collection import Collection
 from proteinshake.metric import Metric
 from proteinshake.target import Target
-from proteinshake.utils import current_date, ProteinGenerator, amino_acid_alphabet
+from proteinshake.utils import ProteinGenerator, amino_acid_alphabet
 from proteinshake.transform import DataTransform
 import numpy as np
 
@@ -39,9 +38,16 @@ class TestBackbone(unittest.TestCase):
             class TestDataset(Dataset):
                 def release(self, version: str = None):
                     proteins = TestAdapter().download()
-                    self.add_proteins(proteins)
-                    self.add_assets(proteins.assets)
-                    self.apply([], replace=True)
+                    return self.save(proteins, version)
+
+                def citation(self, style: str):
+                    return None
+
+                def license(self):
+                    return None
+
+                def statistics(self):
+                    return None
 
             class TestTarget(Target):
                 def __call__(self, dataset):
@@ -59,7 +65,7 @@ class TestBackbone(unittest.TestCase):
                     return iterator()
 
             class TestTask(Task):
-                dataset = TestDataset(path=tmp)
+                dataset = TestDataset(root=tmp)
                 target = TestTarget()
                 metrics = TestMetric()
 
