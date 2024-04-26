@@ -1,5 +1,6 @@
 from typing import Tuple
 from proteinshake.utils import error
+import hashlib, inspect
 
 
 class Transform:
@@ -17,6 +18,23 @@ class Transform:
 
     def transform(self, X):
         raise NotImplementedError
+
+    def __hash__(self):
+        h = hashlib.sha256()
+        h.update(str(self.__class__).encode())
+        h.update(b"|")
+
+        # Get argument names and values using inspect
+        arg_spec = inspect.getargspec(self.__init__)
+        args = arg_spec.args[1:]  # Skip "self"
+
+        # Create a sorted list of key-value pairs for arguments
+        arg_vals = [(arg, getattr(self, arg)) for arg in args]
+        sorted_args = sorted(arg_vals)
+
+        # Update hash with string representation of arguments
+        h.update(repr(sorted_args).encode())
+        return h.hexdigest()
 
 
 class DataTransform(Transform):
@@ -87,7 +105,9 @@ class Compose:
                 setattr(self, "create_loader", transform.create_loader)
 
     def __hash___(self):
-        return self.__class__.__name__
+        return hash(
+            "+".join(hash(transform) for transform in self.deterministic_transforms)
+        )
 
     def fit(self, dataset):
         for transform in self.transforms:
