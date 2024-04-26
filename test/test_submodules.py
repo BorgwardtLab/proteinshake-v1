@@ -21,6 +21,10 @@ class TestSubmodules(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             for Dataset in self._get_members("dataset"):
                 dataset = Dataset(path=tmp)
+                # check if necessary info is supplied
+                dataset.citation()
+                dataset.license()
+                dataset.statistics()
 
     def test_frameworks(self):
         for Framework in self._get_members("framework"):

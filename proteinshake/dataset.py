@@ -115,14 +115,11 @@ class Dataset(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def citation(self, style: str = "apa"):
         raise NotImplementedError
 
-    @abstractmethod
     def license(self):
         raise NotImplementedError
 
-    @abstractmethod
     def statistics(self):
         raise NotImplementedError

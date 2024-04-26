@@ -40,15 +40,6 @@ class TestBackbone(unittest.TestCase):
                     proteins = TestAdapter().download()
                     return self.save(proteins, version)
 
-                def citation(self, style: str):
-                    return None
-
-                def license(self):
-                    return None
-
-                def statistics(self):
-                    return None
-
             class TestTarget(Target):
                 def __call__(self, dataset):
                     return (((p,), p["label"]) for p in dataset)
