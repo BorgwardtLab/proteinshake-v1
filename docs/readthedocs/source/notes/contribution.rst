@@ -3,7 +3,7 @@ How to contribute
 
 We welcome any contributions (new tasks and datasets, features, or bug reports) through pull requests (PR) on the project `GitHub repository <https://github.com/BorgwardtLab/proteinshake-v1>`_.
 
-We maintain a growing list of features to be implemented in the `repository issues <https://github.com/BorgwardtLab/proteinshake-v1/issues>`_. Feel free to assign yourself to one and then contribute a pull request linking the issue.
+We maintain a growing list of features to be implemented in the `repository issues <https://github.com/BorgwardtLab/proteinshake-v1/issues>`_. Feel free to assign yourself to one and then open a pull request linking the issue.
 
 You can also implement your own features. It is a good idea in this case to open an issue beforehand to discuss if your proposed feature would benefit ProteinShake.
 
@@ -14,7 +14,7 @@ Please also consider the contribution guidelines below.
 If you have questions on how to contribute, please feel free to open an issue on GitHub or contact any of the authors.
 
 .. tip::
-    See the :doc:`Tutorial<custom>` for an example on how to build custom datasets and tasks, and :doc:`Tutorial<developer>` for detailed information on the software organization and how to implement your own frameworks, representations and transforms.
+    See the :doc:`Tutorial<custom>` for an example on how to build custom datasets and tasks. For more advanced features, see :doc:`Tutorial<developer>` for detailed information on the software organization and how to implement your own frameworks, representations and transforms.
 
 Contribution guidelines
 -----------------------
@@ -26,7 +26,7 @@ General coding guidelines:
 
 - We follow Black formatting. It's best to install an extension for your editor.
 - Use `typing` for your class and function signatures.
-- Provide a docstring for every class or function. The online documentation will automatically build from these. Our documentation system uses `Sphinx <https://documentation-style-guide-sphinx.readthedocs.io/en/latest/style-guide.html>`_ with the awesome-sphinx theme, see their documentation for format instructions.
+- Provide a docstring for every class or function. The online documentation will automatically build from these. Our documentation system uses `Sphinx <https://documentation-style-guide-sphinx.readthedocs.io/en/latest/style-guide.html>`_ with the `awesome-sphinx theme <https://sphinxawesome.xyz/>`_, see their documentation for format instructions.
 - Performance is key. Especially transforms are called very often during training, and it is crucial that execution time is minimized. Avoid for-loops and vectorize as much as you can.
 - Every piece of code needs a test case. Our testing pipeline covers most modules automatically, see the coverage report when you open a PR. Ideally, a PR should not decrease the coverage.
 
