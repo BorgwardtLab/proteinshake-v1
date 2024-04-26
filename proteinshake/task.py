@@ -6,7 +6,7 @@ from functools import partial
 from proteinshake.target import Target
 from proteinshake.metric import Metric
 from proteinshake.transform import Transform, Compose, IdentityTransform
-from proteinshake.utils import sharded, save_shards, load, warn
+from proteinshake.utils import sharded, save_shards, load, warn, LOCATIONS
 
 
 class Task:
@@ -17,23 +17,19 @@ class Task:
 
     def __init__(
         self,
-        root: Union[str, None] = None,  # default path in ~/.proteinshake
+        root: Union[str, Path] = LOCATIONS.tasks,
         shard_size: int = 1024,
     ) -> None:
-        # create root
-        if root is None:
-            if not os.environ.get("PROTEINSHAKE_ROOT", None) is None:
-                root = os.environ["PROTEINSHAKE_ROOT"]
-            else:
-                root = Path.home() / ".proteinshake"
-        root = Path(root) / self.__class__.__name__
-        os.makedirs(root, exist_ok=True)
-        self.root = root
+        self.root = Path(root) / self.__class__.__name__
+        os.makedirs(self.root, exist_ok=True)
         self.shard_size = shard_size
 
     def transform(self, *transforms) -> None:
         Xy = self.target(self.dataset.proteins)
-        partitions = self.split(Xy)
+        partitions = {
+            split_name: filter(lambda Xy: Xy[0][0]["split"] == split_name, tee)
+            for split_name, tee in zip(["train", "test", "val"], itertools.tee(Xy, 3))
+        }
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
         self.transform.fit(partitions["train"])
@@ -44,25 +40,16 @@ class Task:
             )
             save_shards(
                 data_transformed,
-                self.root / split_name / self.transform.hash / "shards",
+                self.root / split_name / hash(self.transform) / "shards",
             )
             setattr(
                 self, f"{split_name}_loader", partial(self.loader, split=split_name)
             )
         return self
 
-    def split(self, Xy):
-        train, testval = itertools.tee(Xy)
-        test, val = itertools.tee(testval)
-        return {
-            "train": filter(lambda Xy: Xy[0][0]["split"] == "train", train),
-            "test": filter(lambda Xy: Xy[0][0]["split"] == "test", test),
-            "val": filter(lambda Xy: Xy[0][0]["split"] == "val", val),
-        }
-
     def loader(
         self,
-        split=0,
+        split=None,
         batch_size=None,
         shuffle: bool = False,
         random_seed: Union[int, None] = None,
