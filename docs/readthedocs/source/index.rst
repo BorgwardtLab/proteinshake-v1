@@ -33,7 +33,7 @@ New datasets and tasks can be created with just a few lines of code (see the :do
 
    notes/installation
    notes/quickstart
-   notes/tutorial
+   notes/user
    notes/custom
    notes/developer
    notes/contribution
