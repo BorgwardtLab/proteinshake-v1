@@ -19,7 +19,7 @@ class Transform:
     def transform(self, X):
         raise NotImplementedError
 
-    def __hash__(self):
+    def hash(self):
         h = hashlib.sha256()
         h.update(str(self.__class__).encode())
         h.update(b"|")
@@ -81,6 +81,9 @@ class IdentityTransform(Transform):
     def __call__(self, Xy):
         return Xy
 
+    def transform(self, Xy):
+        return Xy
+
 
 class Compose:
     """
@@ -104,10 +107,11 @@ class Compose:
                     error("You cannot use more than one framework.")
                 setattr(self, "create_loader", transform.create_loader)
 
-    def __hash___(self):
-        return hash(
-            "+".join(hash(transform) for transform in self.deterministic_transforms)
-        )
+    def hash(self):
+        h = hashlib.sha256()
+        for transform in self.deterministic_transforms:
+            h.update(transform.hash().encode())
+        return h.hexdigest()
 
     def fit(self, dataset):
         for transform in self.transforms:

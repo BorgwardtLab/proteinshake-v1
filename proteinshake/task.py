@@ -26,21 +26,21 @@ class Task:
 
     def transform(self, *transforms) -> None:
         Xy = self.target(self.dataset.proteins)
-        partitions = {
-            split_name: filter(lambda Xy: Xy[0][0]["split"] == split_name, tee)
-            for split_name, tee in zip(["train", "test", "val"], itertools.tee(Xy, 3))
-        }
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
-        self.transform.fit(partitions["train"])
-        for split_name, Xy in partitions.items():
-            Xy = sharded(Xy, shard_size=self.shard_size)
+        Xy, tee = itertools.tee(Xy)
+        partition = filter(lambda item: item[0][0]["split"] == "train", tee)
+        self.transform.fit(partition)
+        for split_name in ["train", "test", "val"]:
+            Xy, tee = itertools.tee(Xy)
+            partition = filter(lambda item: item[0][0]["split"] == split_name, tee)
+            partition = sharded(partition, shard_size=self.shard_size)
             data_transformed = (
-                self.transform.deterministic_transform(shard) for shard in Xy
+                self.transform.deterministic_transform(shard) for shard in partition
             )
             save_shards(
                 data_transformed,
-                self.root / split_name / hash(self.transform) / "shards",
+                self.root / split_name / self.transform.hash() / "shards",
             )
             setattr(
                 self, f"{split_name}_loader", partial(self.loader, split=split_name)
@@ -56,7 +56,7 @@ class Task:
         **kwargs,
     ):
         rng = np.random.default_rng(random_seed)
-        path = self.root / split / hash(self.transform) / "shards"
+        path = self.root / split / self.transform.hash() / "shards"
         shard_index = load(path / "index.npy")
         if (
             not batch_size is None

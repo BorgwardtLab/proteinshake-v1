@@ -1,2 +1,1 @@
-from ..representations.point_cloud import *
-from ..frameworks.torch_framework import *
+from .min_max_scaler import MinMaxScalerTransform

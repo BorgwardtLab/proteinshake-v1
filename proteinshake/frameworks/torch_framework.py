@@ -1,11 +1,11 @@
 import torch
 import numpy as np
 from torch.utils.data import DataLoader, IterableDataset
-from proteinshake.transform import Transform
+from proteinshake.transform import DataTransform
 from proteinshake.framework import Framework
 
 
-class TorchFrameworkTransform(Framework, Transform):
+class TorchFrameworkTransform(Framework, DataTransform):
     def transform(self, X):
         return X
 

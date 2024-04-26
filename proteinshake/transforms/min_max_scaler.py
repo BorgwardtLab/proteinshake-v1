@@ -1,14 +1,13 @@
-from proteinshake.frontend.transforms import Transform
+from ..transform import LabelTransform
 
 
-class MyLabelTransform(Transform):
-    def fit(self, dataset):
-        labels = [p["label"] for p in dataset.split("train").proteins]
+class MinMaxScalerTransform(LabelTransform):
+    def fit(self, Xy):
+        labels = [p[0][0]["label"] for p in Xy]
         self.min, self.max = min(labels), max(labels)
 
-    def transform(self, X, y, index):
-        y_transformed = (y - self.min) / (self.max - self.min)
-        return X, y_transformed, index
+    def transform(self, y):
+        return (y - self.min) / (self.max - self.min)
 
     def inverse_transform(self, y):
         return y * (self.max - self.min) + self.min
