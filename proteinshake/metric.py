@@ -1,5 +1,5 @@
 from numpy import ndarray
-from typing import Dict, Float
+from typing import Dict
 
 
 class Metric:
@@ -10,7 +10,7 @@ class Metric:
     def __init__(self, *args, **kwargs) -> None:
         pass
 
-    def __call__(self, y_true: ndarray, y_pred: ndarray) -> Dict[str, Float]:
+    def __call__(self, y_true: ndarray, y_pred: ndarray) -> Dict[str, float]:
         """Computes a metric value from ground truth and predictions.
 
         Parameters

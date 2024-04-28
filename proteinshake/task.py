@@ -1,4 +1,4 @@
-from typing import Union, List, Any, Dict, Float
+from typing import Union, List, Any, Dict
 import numpy as np
 import os, itertools
 from pathlib import Path
@@ -130,7 +130,7 @@ class Task:
 
         return self.transform.create_loader(generator, **kwargs)
 
-    def evaluate(self, y_true: ndarray, y_pred: ndarray) -> Dict[str, Float]:
+    def evaluate(self, y_true: ndarray, y_pred: ndarray) -> Dict[str, float]:
         """Computes a set of relevant metrics for the task.
 
         Parameters

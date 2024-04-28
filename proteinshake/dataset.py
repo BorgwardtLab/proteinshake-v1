@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 import os, itertools
-from typing import Dict, Any, List, Union
+from typing import Union
 from fastavro import writer as avro_writer, reader as avro_reader
 from .utils import (
     ProteinGenerator,
