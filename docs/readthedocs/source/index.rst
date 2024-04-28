@@ -1,7 +1,7 @@
 Welcome to ProteinShake!
 =====================================
 
-**Protein structure datasets and tasks in any learning framework... in one line.**
+**ProteinShake provides one-liner imports of large scale, preprocessed protein structure datasets and tasks for various model types and frameworks.**
 
 We provide a collection of pre-processed and cleaned protein 3D structure datasets from RCSB and AlphaFoldDB, including annotations.
 Structures are easily converted to graphs, voxels, or point clouds and loaded natively into PyTorch, TensorFlow, NumPy, JAX, PyTorch Geometric, DGL and NetworkX.
@@ -23,7 +23,7 @@ Who is ProteinShake for?
 ProteinShake is intended for computational biologists and machine learning researchers who need accessible datasets and well-defined evaluation benchmarks for their deep learning models.
 
 We put emphasis on extendability, aiming to eliminate boilerplate code for data preparation and model evaluation across machine learning disciplines.
-ProteinShake therefore also serves as a general framework for processing protein structure data, and we hope it will serve the community as a platform to share their datasets and evaluation tasks.
+ProteinShake therefore also serves as a general framework for processing protein structure data, and serves the community as a platform to share their datasets and evaluation tasks.
 New datasets and tasks can be created with just a few lines of code (see the :doc:`Tutorial<notes/custom>`) and we will integrate your contributions through pull requests on GitHub (see the :doc:`Contribution Guide<notes/contribution>`). 
 
 .. toctree::
