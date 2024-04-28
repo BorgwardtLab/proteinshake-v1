@@ -1,5 +1,5 @@
-from typing import Tuple
-from proteinshake.utils import error
+from typing import Tuple, Iterator, Any
+from proteinshake.utils import error, ProteinGenerator
 import hashlib, inspect
 
 
@@ -10,16 +10,45 @@ class Transform:
 
     stochastic = False
 
-    def __call__(self, Xy):
+    def __call__(
+        self, Xy: Iterator[Tuple[Tuple[Any], Any]]
+    ) -> Iterator[Tuple[Tuple[Any], Any]]:
+        return self.transform(Xy)
+
+    def fit(self, X: ProteinGenerator) -> None:
+        """Fits the transform.
+
+        Parameters
+        ----------
+        X : ProteinGenerator
+            The train partition of a protein dataset.
+        """
+
+    def transform(
+        self, Xy: Iterator[Tuple[Tuple[Any], Any]]
+    ) -> Iterator[Tuple[Tuple[Any], Any]]:
+        """Transforms an Xy-iterator.
+
+        Parameters
+        ----------
+        Xy : Iterator[Tuple[Tuple[Any], Any]]
+            An Xy-iterator.
+
+        Yields
+        ------
+        Iterator[Tuple[Tuple[Any], Any]]
+            An Xy-iterator.
+        """
         raise NotImplementedError
 
-    def fit(self, X):
-        pass
+    def hash(self) -> str:
+        """Computes a hash value encoding the class name and instantiation arguments.
 
-    def transform(self, X):
-        raise NotImplementedError
-
-    def hash(self):
+        Returns
+        -------
+        str
+            A hash value.
+        """
         h = hashlib.sha256()
         h.update(str(self.__class__).encode())
         h.update(b"|")
@@ -38,17 +67,21 @@ class Transform:
 
 
 class DataTransform(Transform):
+    """Reshapes the Xy-iterator to take only a single X instance as input."""
+
     def __call__(self, Xy):
         X, y = Xy
         shape = X.shape
         X = self.transform(X.flatten())
         return X.reshape(*shape, *X.shape[1:]), y
 
-    def transform(self, X):
+    def transform(self, X: Iterator[Any]) -> Iterator[Any]:
         return X
 
 
 class CoTransform(Transform):
+    """Reshapes the Xy-iterator to take X and y as separate arguments."""
+
     def __call__(self, Xy):
         return self.transform(*Xy)
 
@@ -57,6 +90,8 @@ class CoTransform(Transform):
 
 
 class TupleTransform(Transform):
+    """Reshapes the Xy-iterator to take only X tuples as an input."""
+
     def __call__(self, Xy):
         X, y = Xy
         return self.transform(X), y
@@ -66,6 +101,8 @@ class TupleTransform(Transform):
 
 
 class LabelTransform(Transform):
+    """Reshapes the Xy-iterator to take only the label as input."""
+
     def __call__(self, Xy):
         X, y = Xy
         return X, self.transform(y)
@@ -78,6 +115,8 @@ class LabelTransform(Transform):
 
 
 class IdentityTransform(Transform):
+    """Does nothing."""
+
     def __call__(self, Xy):
         return Xy
 

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List, Any, Dict, Float
 import numpy as np
 import os, itertools
 from pathlib import Path
@@ -7,9 +7,14 @@ from proteinshake.target import Target
 from proteinshake.metric import Metric
 from proteinshake.transform import Transform, Compose, IdentityTransform
 from proteinshake.utils import sharded, save_shards, load, warn, LOCATIONS
+from numpy import ndarray
 
 
 class Task:
+    """A task is defined by a dataset, a target, and a set of metrics.
+    It provides functionality to transform data and creates dataloaders.
+    """
+
     dataset: str = ""
     target: Target = None
     metrics: Metric = None
@@ -24,7 +29,16 @@ class Task:
         os.makedirs(self.root, exist_ok=True)
         self.shard_size = shard_size
 
-    def transform(self, *transforms) -> None:
+    def transform(self, *transforms: List[Transform]) -> None:
+        """Applies a series of transforms to the dataset, including the target transform.
+        Transformes are composed, and the deterministic part is saved to disk.
+        Also realizes the split assignments and prepares the dataloaders.
+
+        Parameters
+        ----------
+        transforms : List[Transform]
+            A number of transforms to be applied to the dataset.
+        """
         Xy = self.target(self.dataset.proteins)
         self.transform = Compose(*[self.augmentation, *transforms])
         # cache from here
@@ -49,12 +63,31 @@ class Task:
 
     def loader(
         self,
-        split=None,
-        batch_size=None,
+        split: str = None,
+        batch_size: int = None,
         shuffle: bool = False,
         random_seed: Union[int, None] = None,
         **kwargs,
-    ):
+    ) -> Any:
+        """Returns a dataloader of the appropriate framework.
+        Takes care of batching, efficient file loading, and application of the stochastic transforms.
+
+        Parameters
+        ----------
+        split : str, optional
+            The split to load, one of 'train', 'test', or 'val', by default None
+        batch_size : int, optional
+            The batch size, by default None
+        shuffle : bool, optional
+            Whether to shuffle the data, by default False
+        random_seed : Union[int, None], optional
+            The random seed for shuffling, by default None
+
+        Returns
+        -------
+        Any
+            A framework-specific dataloader.
+        """
         rng = np.random.default_rng(random_seed)
         path = self.root / split / self.transform.hash() / "shards"
         shard_index = load(path / "index.npy")
@@ -97,7 +130,21 @@ class Task:
 
         return self.transform.create_loader(generator, **kwargs)
 
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true: ndarray, y_pred: ndarray) -> Dict[str, Float]:
+        """Computes a set of relevant metrics for the task.
+
+        Parameters
+        ----------
+        y_true : ndarray
+            The ground truth.
+        y_pred : ndarray
+            The predictions.
+
+        Returns
+        -------
+        Dict[str, Float]
+            A dictionary of metric names and values.
+        """
         y_true = self.transform.inverse_transform(y_true)
         y_pred = self.transform.inverse_transform(y_pred)
         return self.metrics(y_true, y_pred)

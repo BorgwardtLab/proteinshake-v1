@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Dict
 from biopandas.pdb import PandasPdb
 from biopandas.mmcif import PandasMmcif
 
@@ -12,12 +12,36 @@ class Processor:
     """
 
     @classmethod
-    def is_protein_file(self, path):
+    def is_protein_file(self, path: Union[str, Path]) -> bool:
+        """Checks if a given file has a valid protein structure file extension.
+
+        Parameters
+        ----------
+        path : Union[str, Path]
+            The file path.
+
+        Returns
+        -------
+        bool
+            The result of the check.
+        """
         suffixes = Path(path).suffixes
         return any(suffix in [".pdb", ".cif"] for suffix in suffixes)
 
     @classmethod
-    def process(self, path: Union[str, Path]):
+    def process(self, path: Union[str, Path]) -> Dict:
+        """Takes a protein structure file and returns a cleaned protein dictionary.
+
+        Parameters
+        ----------
+        path : Union[str, Path]
+            The file path
+
+        Returns
+        -------
+        Dict
+            A protein dictionary with ID, sequence, coordinates, and quality scores.
+        """
         path = Path(path)
         if ".pdb" in path.suffixes:
             pdb = PandasPdb().read_pdb(str(path))

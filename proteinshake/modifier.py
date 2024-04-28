@@ -1,8 +1,24 @@
+from proteinshake.utils import ProteinGenerator
+
+
 class Modifier:
     """
     Transforms a Collection. May be used to precompute splits or filter proteins.
-    Can be applied before or after write to the filesystem, i.e. can be applied before hosting or at the user-end when loading a Task.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         pass
+
+    def __call__(self, proteins: ProteinGenerator) -> ProteinGenerator:
+        """Modifies the protein generator.
+
+        Parameters
+        ----------
+        proteins : ProteinGenerator
+            An iterator of protein dictionaries.
+
+        Returns
+        -------
+        ProteinGenerator
+            The modified iterator.
+        """
