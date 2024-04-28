@@ -1,9 +1,6 @@
 ``datasets``
 ==========================
 
-
-These classes define our currently supported datasets. See our :doc:`datasets tutorial<../notes/dataset>` for a quick intro to datasets, and :doc:`this tutorial<../notes/custom>` to learn how to create your own datasets.
-
 .. currentmodule:: proteinshake.datasets
 
 .. autosummary::
