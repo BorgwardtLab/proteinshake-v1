@@ -45,7 +45,14 @@ New datasets and tasks can be created with just a few lines of code (see the :do
    :maxdepth: 1
    :caption: Package Reference
 
+   modules/adapters
    modules/datasets
+   modules/frameworks
+   modules/metrics
+   modules/modifiers
+   modules/representations
+   modules/targets
    modules/tasks
    modules/transforms
    modules/utils
+   modules/mocks
