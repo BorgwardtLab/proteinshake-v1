@@ -15,7 +15,7 @@ To create a new dataset, inherit from the ``Dataset`` class and define a ``.rele
     from proteinshake.modifiers import RandomSplit
 
 
-    class TestDataset(Dataset):
+    class MyDataset(Dataset):
         def release(self, version: str = None):
             proteins = SyntheticAdapter().download()
             proteins = RandomSplit()(proteins)
@@ -44,7 +44,7 @@ To release your first version, just create an instance:
 
 .. code:: python
 
-    dataset = TestDataset()
+    dataset = MyDataset()
 
 This will automatically run the first release.
 
@@ -60,15 +60,19 @@ You can create a new task by defining these parameters:
     from proteinshake.targets import AttributeTarget
     from proteinshake.metrics import AccuracyMetric
 
-    class TestTask(Task):
-        dataset = TestDataset()
+    class MyTask(Task):
+        dataset = MyDataset()
         target = AttributeTarget("label")
         metrics = AccuracyMetric()
 
-In this case, we take our ``TestDataset`` and apply an ``AttributeTarget`` to it.
+In this case, we take ``MyDataset`` and apply an ``AttributeTarget`` to it.
 Targets take a dataset and reshape it to define the prediction problem, i.e. they define the prediction target, and therefore mostly determine the type of task.
 ``AttributeTarget`` specifically takes some attribute in the protein dictionary and sets it as the prediction target.
 
 Lastly, we define some appropriate metrics (here accuracy) and we are done with the task!
 
 You can now use your custom dataset and task just like any other ProteinShake task.
+
+.. code:: python
+
+    task = MyTask().to_point().torch()
