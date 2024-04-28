@@ -69,6 +69,6 @@ In this case, we take our `TestDataset` and apply an `AttributeTarget` to it.
 Targets take a dataset and reshape it to define the prediction problem, i.e. they define the prediction target, and therefore mostly determine the type of task.
 `AttributeTarget` specifically takes some attribute in the protein dictionary and sets it as the prediction target.
 
-Lastly, we define some appropriate metrics (here we assume a balanced binary classification and choose accuracy) and we are done with the task!
+Lastly, we define some appropriate metrics (here accuracy) and we are done with the task!
 
 You can now use your custom dataset and task just like any other ProteinShake task.
