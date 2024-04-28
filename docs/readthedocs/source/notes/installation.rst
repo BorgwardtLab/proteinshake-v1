@@ -5,7 +5,7 @@ ProteinShake can be installed through PyPI:
 
 .. code-block:: bash
 
-  currently not availabe
+  currently not available
 
 To get the most recent developer version:
 
