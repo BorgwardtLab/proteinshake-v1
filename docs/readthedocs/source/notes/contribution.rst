@@ -25,7 +25,7 @@ General coding guidelines:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - We follow Black formatting. It's best to install an extension for your editor.
-- Use `typing` for your class and function signatures.
+- Use ``typing`` for your class and function signatures.
 - Provide a docstring for every class or function. The online documentation will automatically build from these. Our documentation system uses `Sphinx <https://documentation-style-guide-sphinx.readthedocs.io/en/latest/style-guide.html>`_ with the `awesome-sphinx theme <https://sphinxawesome.xyz/>`_, see their documentation for format instructions.
 - Performance is key. Especially transforms are called very often during training, and it is crucial that execution time is minimized. Avoid for-loops and vectorize as much as you can.
 - Every piece of code needs a test case. Our testing pipeline covers most modules automatically, see the coverage report when you open a PR. Ideally, a PR should not decrease the coverage.

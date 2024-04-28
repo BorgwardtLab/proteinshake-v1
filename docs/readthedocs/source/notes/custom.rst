@@ -6,7 +6,7 @@ ProteinShake was made to be extended, and as such we made it easy to create new 
 Custom Datasets
 ---------------
 
-To create a new dataset, inherit from the `Dataset` class and define a `.release()` method.
+To create a new dataset, inherit from the ``Dataset`` class and define a ``.release()`` method.
 
 .. code:: python
 
@@ -21,11 +21,11 @@ To create a new dataset, inherit from the `Dataset` class and define a `.release
             proteins = RandomSplit()(proteins)
             return self.save(proteins, version)
 
-The `.release()` method creates a new version of the dataset and defines what proteins and information will be contained in the dataset.
-First, a set of proteins is downloaded through an `Adapter`.
+The ``.release()`` method creates a new version of the dataset and defines what proteins and information will be contained in the dataset.
+First, a set of proteins is downloaded through an ``Adapter``.
 The adapter provides an API to popular databases such as UniProt, PDB, and AlphaFold DB.
 See their documentation for further options.
-We will use a `MockAdapter` here which provides some randomly generated proteins.
+We will use a ``MockAdapter`` here which provides some randomly generated proteins.
 
 .. tip::
 
@@ -33,9 +33,9 @@ We will use a `MockAdapter` here which provides some randomly generated proteins
 
 .. note::
     
-    The return type of an adapter is always a `ProteinGenerator`. This is a standard python generator with some extended functionality, such as a `__len__` magic and additional meta info storage.
+    The return type of an adapter is always a ``ProteinGenerator``. This is a standard python generator with some extended functionality, such as a `__len__` magic and additional meta info storage.
 
-Then you can apply a series of `Modifier`s.
+Then you can apply a series of ``Modifier``s.
 These are versatile in their function, but are mostly used to compute data splits, add annotations to proteins, or filter the protein set.
 See a complete list in the documentation.
 
@@ -65,9 +65,9 @@ You can create a new task by defining these parameters:
         target = AttributeTarget("label")
         metrics = AccuracyMetric()
 
-In this case, we take our `TestDataset` and apply an `AttributeTarget` to it.
+In this case, we take our ``TestDataset`` and apply an ``AttributeTarget`` to it.
 Targets take a dataset and reshape it to define the prediction problem, i.e. they define the prediction target, and therefore mostly determine the type of task.
-`AttributeTarget` specifically takes some attribute in the protein dictionary and sets it as the prediction target.
+``AttributeTarget`` specifically takes some attribute in the protein dictionary and sets it as the prediction target.
 
 Lastly, we define some appropriate metrics (here accuracy) and we are done with the task!
 
