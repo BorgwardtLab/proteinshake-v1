@@ -8,7 +8,7 @@ Library architecture
 
 This is a diagram of how the classes of ProteinShake work together to define the data processing.
 
-.. image:: /images/architecture.png
+.. image:: ../images/architecture.png
   :width: 80%
   :align: center
 
