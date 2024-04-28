@@ -51,3 +51,24 @@ This will automatically run the first release.
 
 Custom Tasks
 ------------
+
+A task is defined by a dataset, a prediction target, and a metric.
+You can create a new task by defining these parameters:
+
+.. code:: python
+
+    from proteinshake.targets import AttributeTarget
+    from proteinshake.metrics import AccuracyMetric
+
+    class TestTask(Task):
+        dataset = TestDataset()
+        target = AttributeTarget("label")
+        metrics = AccuracyMetric()
+
+In this case, we take our `TestDataset` and apply an `AttributeTarget` to it.
+Targets take a dataset and reshape it to define the prediction problem, i.e. they define the prediction target, and therefore mostly determine the type of task.
+`AttributeTarget` specifically takes some attribute in the protein dictionary and sets it as the prediction target.
+
+Lastly, we define some appropriate metrics (here we assume a balanced binary classification and choose accuracy) and we are done with the task!
+
+You can now use your custom dataset and task just like any other ProteinShake task.
