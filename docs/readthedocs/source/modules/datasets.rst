@@ -11,4 +11,5 @@
 
 .. automodule:: proteinshake.datasets
     :members:
+    :imported-members:
     :exclude-members:

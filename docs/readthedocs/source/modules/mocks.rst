@@ -11,4 +11,5 @@
 
 .. automodule:: proteinshake.mocks
     :members:
+    :imported-members:
     :exclude-members: 

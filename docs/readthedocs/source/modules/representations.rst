@@ -11,4 +11,5 @@
 
 .. automodule:: proteinshake.representations
     :members:
+    :imported-members:
     :exclude-members:
