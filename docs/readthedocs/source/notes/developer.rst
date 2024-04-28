@@ -125,4 +125,4 @@ Also framworks are special instances of transforms. They additionally implement 
 Useful utils: mocks
 -------------------
 
-For testing purposes we implemented mocks for most of the classes above. Have a look at the documentation and see if there is anything useful for you!
+For testing purposes we implemented mocks for some objects like adapters, proteins, and iterators. Have a look at the documentation and see if there is anything useful for you!
